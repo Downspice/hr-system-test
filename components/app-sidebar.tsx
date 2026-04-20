@@ -11,6 +11,8 @@ import {
   MoreHorizontal,
   Home,
   CheckCircle2,
+  UserCog,
+  CalendarOff,
   Clock,
   PieChart,
 } from "lucide-react"
@@ -41,7 +43,22 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-const data = {
+type NavItem = {
+  title: string;
+  url: string;
+  icon: any;
+  isActive?: boolean;
+  items?: {
+    title: string;
+    url: string;
+  }[];
+};
+
+const data: {
+  user: { name: string; email: string; avatar: string };
+  navMain: NavItem[];
+  secondary: { title: string; url: string; icon: any }[];
+} = {
   user: {
     name: "Joe HR",
     email: "joe@example.com",
@@ -53,67 +70,40 @@ const data = {
       url: "/",
       icon: LayoutDashboard,
       isActive: true,
+      items: [],
     },
     {
-      title: "Management",
-      url: "#",
+      title: "Employees",
+      url: "/employees",
       icon: Users,
-      items: [
-        {
-          title: "Employees",
-          url: "/employees",
-        },
-        {
-          title: "Departments",
-          url: "/departments",
-        },
-        {
-          title: "Attendance",
-          url: "/attendance",
-        },
-      ],
+      items: [],
     },
     {
-      title: "Recruitment",
-      url: "#",
+      title: "Department",
+      url: "/departments",
       icon: Briefcase,
-      items: [
-        {
-          title: "Job Openings",
-          url: "/jobs",
-        },
-        {
-          title: "Candidates",
-          url: "/candidates",
-        },
-        {
-          title: "Onboarding",
-          url: "/onboarding",
-        },
-      ],
+      items: [],
     },
     {
-      title: "Reports",
-      url: "#",
-      icon: PieChart,
-      items: [
-        {
-          title: "Payroll",
-          url: "/reports/payroll",
-        },
-        {
-          title: "Performance",
-          url: "/reports/performance",
-        },
-      ],
+      title: "Roles",
+      url: "/roles",
+      icon: UserCog,
+      items: [],
+    },
+    {
+      title: "Leaves",
+      url: "/leaves",
+      icon: CalendarOff,
+      items: [],
+    },
+    {
+      title: "Attendance",
+      url: "/attendance",
+      icon: Clock,
+      items: [],
     },
   ],
   secondary: [
-    {
-      title: "Calendar",
-      url: "/calendar",
-      icon: Calendar,
-    },
     {
       title: "Settings",
       url: "/settings",
@@ -146,7 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                {item.items ? (
+                {item.items && item.items.length > 0 ? (
                   <>
                     <SidebarMenuButton tooltip={item.title}>
                       {item.icon && <item.icon />}
