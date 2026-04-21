@@ -121,7 +121,14 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: linear-gradient(
+      to right,
+      #F2F3F5 0%,
+      #F6E7B5 50%,
+      #F4D36A 100%
+    );
+    background-attachment: fixed;
     }
   html {
     @apply font-sans;
