@@ -1,8 +1,9 @@
 "use client";
 
 import { useId } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues, Path } from "react-hook-form";
 import type { Control, FieldError } from "react-hook-form";
+import { cn } from "@/lib/utils";
 import {
   Field,
   FieldContent,
@@ -23,9 +24,9 @@ export interface SelectOption {
   label: string;
 }
 
-interface SelectWrapperProps {
-  control: Control<any>;
-  name: string;
+interface SelectWrapperProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   options: SelectOption[];
   orientation?: "horizontal" | "vertical" | "responsive";
@@ -35,9 +36,10 @@ interface SelectWrapperProps {
   required?: boolean;
   className?: string;
   triggerClassName?: string;
+  size?: "sm" | "base" | "lg" | "xl";
 }
 
-export default function SelectWrapper({
+export default function SelectWrapper<T extends FieldValues>({
   control,
   name,
   label,
@@ -48,8 +50,18 @@ export default function SelectWrapper({
   disabled = false,
   required = false,
   triggerClassName = "min-w-[120px]",
-}: SelectWrapperProps) {
+  size = "base",
+}: SelectWrapperProps<T>) {
   const id = useId();
+
+  const sizeClasses = {
+    sm: "h-8 text-xs px-2 py-1",
+    base: "h-10 text-sm px-3 py-2 md:text-sm",
+    lg: "h-12 text-base px-4 py-3",
+    xl: "h-14 text-lg px-4 py-3",
+  };
+
+  const selectSizeClass = sizeClasses[size];
 
   return (
     <Controller
@@ -78,7 +90,7 @@ export default function SelectWrapper({
             <SelectTrigger
               id={id}
               aria-invalid={fieldState.invalid}
-              className={triggerClassName}
+              className={cn(selectSizeClass, triggerClassName)}
             >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
