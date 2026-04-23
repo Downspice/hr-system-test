@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export default function Page() {
   return (
@@ -13,6 +14,7 @@ export default function Page() {
         <div className="font-mono text-xs text-muted-foreground">
           (Press <kbd>d</kbd> to toggle dark mode)
         </div>
+        <Input/>
       </div>
     </div>
   )
