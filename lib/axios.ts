@@ -15,7 +15,7 @@ const createApiClient = (baseURL: string): AxiosInstance => {
   // Request interceptor
   client.interceptors.request.use(async (config) => {
     let token: string | null | undefined;
-    
+
     try {
       const session = await getSession();
       token = session?.user?.accessToken;
@@ -66,7 +66,7 @@ const createApiClient = (baseURL: string): AxiosInstance => {
 };
 
 // Export clients for reuse
-export const apiClient = createApiClient(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:4000");
+export const apiClient = createApiClient(process.env.NEXT_PUBLIC_API_BASEURL || "http://localhost:3001");
 
 export const dummyApiClient = async <T>(
   url: string,

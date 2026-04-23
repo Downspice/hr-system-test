@@ -1,4 +1,8 @@
+"use client"
+
 import * as React from "react"
+import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/axios"
 import {
   LayoutDashboard,
   Users,
@@ -113,6 +117,17 @@ const data: {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter()
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+    }
+    delete apiClient.defaults.headers.common["Authorization"]
+    router.push("/login") // Adjust this to your actual login route if different
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -227,7 +242,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Settings className="mr-2 size-4" />
                   Account Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 size-4" />
                   Log out
                 </DropdownMenuItem>
