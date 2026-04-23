@@ -1,13 +1,13 @@
 "use client";
 
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues, Path } from "react-hook-form";
 import type { Control, FieldError } from "react-hook-form";
 import { Field, FieldLabel, FieldDescription, FieldError as FieldErrorComp } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-interface InputWrapperProps {
-  control: Control<any>;
-  name: string;
+interface InputWrapperProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   type?: string;
   className?: string;
@@ -19,7 +19,7 @@ interface InputWrapperProps {
   autoComplete?: string;
 }
 
-export default function InputWrapper({
+export default function InputWrapper<T extends FieldValues>({
   control,
   name,
   label,
@@ -31,7 +31,7 @@ export default function InputWrapper({
   readonly = false,
   description,
   autoComplete = "off",
-}: InputWrapperProps) {
+}: InputWrapperProps<T>) {
   return (
     <Controller
       name={name}
