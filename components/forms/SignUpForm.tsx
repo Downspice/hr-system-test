@@ -62,20 +62,22 @@ export default function SignUpForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-md">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
       <div className="grid grid-cols-2 gap-4">
         <InputWrapper
           control={control}
           name="firstName"
-          label="First Name"
-          placeholder="John"
+          label="First name"
+          placeholder="Amélie"
+          className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
           required
         />
         <InputWrapper
           control={control}
           name="lastName"
-          label="Last Name"
-          placeholder="Doe"
+          label="Last name"
+          placeholder="Laurent"
+          className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
           required
         />
       </div>
@@ -84,7 +86,8 @@ export default function SignUpForm() {
         control={control}
         name="username"
         label="Username"
-        placeholder="johndoe123"
+        placeholder="amelielaurent"
+        className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
         required
       />
 
@@ -93,7 +96,8 @@ export default function SignUpForm() {
         name="email"
         label="Email"
         type="email"
-        placeholder="johndoe@example.com"
+        placeholder="amelielaurent7622@gmail.com"
+        className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
         required
       />
       
@@ -102,8 +106,8 @@ export default function SignUpForm() {
         name="password"
         label="Password"
         type="password"
-        placeholder="Enter a strong password"
-        description="Must be at least 8 characters, with uppercase, lowercase, number, and special character."
+        placeholder="•••••••••••••••••"
+        className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
         required
       />
 
@@ -112,11 +116,12 @@ export default function SignUpForm() {
         name="confirmPassword"
         label="Confirm Password"
         type="password"
-        placeholder="Re-enter your password"
+        placeholder="•••••••••••••••••"
+        className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
         required
       />
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-[#facc15] hover:bg-[#eab308] text-black font-semibold h-12 mt-2 shadow-md">
         {isSubmitting ? "Creating account..." : "Sign Up"}
       </Button>
     </form>

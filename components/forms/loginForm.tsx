@@ -33,22 +33,19 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      // Adjust the URL if your login endpoint is different
       const response = await apiClient.post("/auth/login", data);
       
       const { token, user } = response.data;
       
-      // Store token and user data in localStorage for persistence
       if (typeof window !== "undefined") {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
       }
       
-      // Update default headers for subsequent requests immediately
       apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       toast.success("Login successful!");
-      router.push("/dashboard"); // Adjust to your default post-login route
+      router.push("/");
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.response?.data?.message || error.response?.data?.error || "Login failed. Please check your credentials.");
@@ -56,13 +53,14 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-sm">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
       <InputWrapper
         control={control}
         name="email"
         label="Email"
         type="email"
         placeholder="Enter your email"
+        className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
         required
       />
       
@@ -72,10 +70,11 @@ export default function LoginForm() {
         label="Password"
         type="password"
         placeholder="Enter your password"
+        className="rounded-full bg-white/70 border-0 shadow-sm focus-visible:ring-2 focus-visible:ring-yellow-400/50"
         required
       />
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-[#facc15] hover:bg-[#eab308] text-black font-semibold h-12 mt-2 shadow-md">
         {isSubmitting ? "Logging in..." : "Login"}
       </Button>
     </form>
