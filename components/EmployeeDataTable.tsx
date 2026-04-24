@@ -25,145 +25,105 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Eye,
-  Edit2,
   Trash2,
-  MoreVertical,
-  SlidersHorizontal,
-  ChevronDown,
   Search,
   Plus,
   Download,
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { User } from "@/types/types";
 
 interface EmployeeDataTableProps {
   data: User[];
-  onEdit: (user: User) => void;
   onView: (user: User) => void;
   onDelete: (user: User) => void;
   onCreate?: () => void;
 }
 
-export function EmployeeDataTable({ data, onEdit, onView, onDelete, onCreate }: EmployeeDataTableProps) {
+export function EmployeeDataTable({ data, onView, onDelete, onCreate }: EmployeeDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [globalFilter, setGlobalFilter] = React.useState("");
 
   const columns: ColumnDef<User>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <input
-          type="checkbox"
-          className="translate-y-[2px] rounded border-gray-300"
-          checked={table.getIsAllPageRowsSelected()}
-          onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.checked)}
-        />
-      ),
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          className="translate-y-[2px] rounded border-gray-300"
-          checked={row.getIsSelected()}
-          onChange={(value) => row.toggleSelected(!!value.target.checked)}
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
+      id: "fullName",
+      accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+      header: "Full name",
       cell: ({ row }) => {
         const user = row.original;
         const fullName = `${user.firstName} ${user.lastName}`;
         const initials = `${user.firstName[0]}${user.lastName[0]}`;
         return (
           <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
+            <Avatar className="h-9 w-9 ring-2 ring-white shadow-sm">
               <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="bg-zinc-800 text-white text-xs font-bold">{initials}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span className="font-medium text-sm">{fullName}</span>
-              <span className="text-xs text-muted-foreground">{user.email}</span>
-            </div>
+            <span className="font-medium text-sm text-zinc-900">{fullName}</span>
           </div>
         );
       },
     },
     {
-      accessorKey: "role",
-      header: "Job title",
-      cell: ({ row }) => <span className="text-sm">{row.getValue("role")}</span>,
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => (
+        <a href={`mailto:${row.getValue("email")}`} className="text-sm text-blue-600 hover:underline">
+          {row.getValue("email")}
+        </a>
+      ),
     },
     {
-      accessorKey: "department",
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => (
+        <span className="text-sm text-zinc-700">{row.getValue("role")}</span>
+      ),
+    },
+    {
+      id: "department",
       header: "Department",
-      cell: ({ row }) => {
-        const dept = row.original.department;
-        return <span className="text-sm">{dept?.name || "N/A"}</span>;
-      },
+      cell: ({ row }) => (
+        <span className="text-sm text-zinc-600">{row.original.department?.name || "—"}</span>
+      ),
     },
     {
       accessorKey: "createdAt",
-      header: "Join Date",
+      header: "Joined date",
       cell: ({ row }) => {
         const date = new Date(row.getValue("createdAt"));
-        return <span className="text-sm">{date.toLocaleDateString()}</span>;
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = (row.index % 2 === 0) ? "Invited" : "Absent";
         return (
-          <Badge variant={status === "Invited" ? "success" : "secondary"} className="font-normal">
-            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${status === "Invited" ? "bg-emerald-500" : "bg-gray-400"}`} />
-            {status}
-          </Badge>
+          <span className="text-sm text-zinc-500">
+            {date.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" })}
+          </span>
         );
       },
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => onView(row.original)}>
-              <Eye className="mr-2 h-4 w-4" /> View profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(row.original)}>
-              <Edit2 className="mr-2 h-4 w-4" /> Edit details
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(row.original)}
-            >
-              <Trash2 className="mr-2 h-4 w-4" /> Delete employee
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => onView(row.original)}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-sm"
+            title="View profile"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => onDelete(row.original)}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
+            title="Delete employee"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       ),
     },
   ];
@@ -178,102 +138,82 @@ export function EmployeeDataTable({ data, onEdit, onView, onDelete, onCreate }: 
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    globalFilterFn: "includesString",
+    onGlobalFilterChange: setGlobalFilter,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      globalFilter,
+    },
+    initialState: {
+      pagination: { pageSize: 10 },
     },
   });
 
+  const totalCount = table.getFilteredRowModel().rows.length;
+
   return (
-    <div className="space-y-4">
-      {/* Filter Row */}
-      <div className="flex flex-wrap items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-9 border-none bg-zinc-50/50 hover:bg-zinc-100">
-              Columns <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+    <div className="space-y-0">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-zinc-900">Employee Management</h1>
+        <p className="text-sm text-zinc-500 mt-0.5">Manage your team members and their accounts</p>
+      </div>
 
-        <Button variant="outline" size="sm" className="h-9 border-none bg-zinc-50/50 hover:bg-zinc-100">
-          Department <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
-        </Button>
-        <Button variant="outline" size="sm" className="h-9 border-none bg-zinc-50/50 hover:bg-zinc-100">
-          Lifecycle <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
-        </Button>
-        <Button variant="outline" size="sm" className="h-9 border-none bg-zinc-50/50 hover:bg-zinc-100">
-          Status <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
-        </Button>
-
-        <div className="relative ml-auto flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="relative w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <Input
             placeholder="Search..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="h-10 w-full rounded-full border-zinc-200 bg-white pl-10 focus-visible:ring-yellow-400/50"
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-9 h-9 bg-white border-zinc-200 rounded-lg text-sm focus-visible:ring-zinc-400"
           />
         </div>
-
         <div className="flex items-center gap-2">
-            <Button 
-              variant="secondary" 
-              size="icon" 
-              className="h-10 w-10 rounded-full bg-white border shadow-sm"
-              onClick={onCreate}
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-           <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full bg-white border shadow-sm">
-             <SlidersHorizontal className="h-4 w-4" />
-           </Button>
-           <Button variant="secondary" className="h-10 rounded-full bg-white border shadow-sm gap-2 px-4">
-             <Download className="h-4 w-4" /> Export
-           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-1.5 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 text-sm"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-1.5 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 text-sm"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Columns
+          </Button>
+          <Button
+            size="sm"
+            className="h-9 gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-sm"
+            onClick={onCreate}
+          >
+            <Plus className="h-4 w-4" />
+            Add Employee
+          </Button>
         </div>
       </div>
 
-      {/* Table Content */}
-      <div className="rounded-[2rem] border border-zinc-100 bg-white shadow-sm overflow-hidden p-6">
+      {/* Table */}
+      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="border-none hover:bg-transparent">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-zinc-400 font-medium text-xs uppercase tracking-wider h-12">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+              <TableRow key={headerGroup.id} className="border-b border-zinc-100 bg-zinc-50 hover:bg-zinc-50">
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="text-xs font-semibold text-zinc-500 uppercase tracking-wider h-11 px-4"
+                  >
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -282,11 +222,10 @@ export function EmployeeDataTable({ data, onEdit, onView, onDelete, onCreate }: 
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="group border-none transition-colors hover:bg-zinc-50 data-[state=selected]:bg-yellow-50/50 rounded-2xl"
+                  className="border-b border-zinc-50 hover:bg-zinc-50/80 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-4 h-16">
+                    <TableCell key={cell.id} className="px-4 py-3.5 h-[60px]">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -294,7 +233,7 @@ export function EmployeeDataTable({ data, onEdit, onView, onDelete, onCreate }: 
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-32 text-center text-zinc-400 text-sm">
                   No employees found.
                 </TableCell>
               </TableRow>
@@ -302,20 +241,21 @@ export function EmployeeDataTable({ data, onEdit, onView, onDelete, onCreate }: 
           </TableBody>
         </Table>
       </div>
-      
-      {/* Pagination */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-4 px-1">
+        <p className="text-sm text-zinc-500">
+          Showing {totalCount} employee(s)
+        </p>
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="h-8 gap-1 border-zinc-200 text-zinc-600 text-sm"
           >
+            <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
           <Button
@@ -323,8 +263,10 @@ export function EmployeeDataTable({ data, onEdit, onView, onDelete, onCreate }: 
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="h-8 gap-1 border-zinc-200 text-zinc-600 text-sm"
           >
             Next
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

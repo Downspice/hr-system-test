@@ -6,14 +6,12 @@ import { EmployeeDataTable } from "@/components/EmployeeDataTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { EmployeeDialog } from "@/components/EmployeeDialog";
-import { EmployeeViewDialog } from "@/components/EmployeeViewDialog";
+import { EmployeeQuickViewSheet } from "@/components/EmployeeQuickViewSheet";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useDeleteMutation } from "@/hooks/api-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export default function EmployeesPage() {
-  const router = useRouter();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -41,24 +39,19 @@ export default function EmployeesPage() {
   const users = response?.data || [];
 
   return (
-    <div className="flex flex-col gap-8 p-8 animate-in fade-in duration-700">
-
-      {/* Main Table Section */}
+    <div className="p-8 animate-in fade-in duration-500">
       {isLoading ? (
         <div className="space-y-4">
-          <Skeleton className="h-[400px] w-full rounded-[2rem]" />
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-[500px] w-full rounded-xl" />
         </div>
       ) : isError ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center border rounded-[2rem] bg-zinc-50/50">
+        <div className="flex flex-col items-center justify-center py-20 text-center border rounded-2xl bg-zinc-50/50">
           <p className="text-destructive font-medium">Failed to load employee directory.</p>
         </div>
       ) : (
-        <EmployeeDataTable 
-          data={users} 
-          onEdit={(user) => {
-            setSelectedUser(user);
-            setIsFormOpen(true);
-          }}
+        <EmployeeDataTable
+          data={users}
           onView={(user) => {
             setSelectedUser(user);
             setIsViewOpen(true);
@@ -81,7 +74,7 @@ export default function EmployeesPage() {
         onRefresh={refetch}
       />
 
-      <EmployeeViewDialog
+      <EmployeeQuickViewSheet
         isOpen={isViewOpen}
         employee={selectedUser}
         onClose={() => setIsViewOpen(false)}
