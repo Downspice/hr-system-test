@@ -41,6 +41,34 @@ export function usePutMutation<TData, TPayload>(url: string) {
   });
 }
 
+export function useDynamicPutMutation<TData, TPayload>() {
+  return useMutation<ApiResponse<TData>, AxiosError<ApiError>, { url: string; payload: TPayload }>({
+    mutationFn: async ({ url, payload }) => {
+      const { data } = await apiClient.put<ApiResponse<TData>>(url, payload);
+      return data;
+    },
+  });
+}
+
+// Generic PATCH mutation
+export function usePatchMutation<TData, TPayload>(url: string) {
+  return useMutation<ApiResponse<TData>, AxiosError<ApiError>, TPayload>({
+    mutationFn: async (payload) => {
+      const { data } = await apiClient.patch<ApiResponse<TData>>(url, payload);
+      return data;
+    },
+  });
+}
+
+export function useDynamicPatchMutation<TData, TPayload>() {
+  return useMutation<ApiResponse<TData>, AxiosError<ApiError>, { url: string; payload: TPayload }>({
+    mutationFn: async ({ url, payload }) => {
+      const { data } = await apiClient.patch<ApiResponse<TData>>(url, payload);
+      return data;
+    },
+  });
+}
+
 // Generic Delete mutation
 
 export function useDeleteMutation() {
