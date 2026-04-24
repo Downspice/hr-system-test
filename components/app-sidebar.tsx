@@ -16,6 +16,7 @@ import {
   Home,
   CheckCircle2,
   UserCog,
+  User,
   CalendarOff,
   Clock,
   PieChart,
@@ -46,6 +47,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { EmployeeViewDialog } from "@/components/EmployeeViewDialog"
+import { useGetQuery } from "@/hooks/api-client"
+import { User as UserType } from "@/types/types"
 
 type NavItem = {
   title: string;
@@ -118,6 +122,27 @@ const data: {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter()
+  const [currentUser, setCurrentUser] = React.useState<any>(null)
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false)
+
+  const { data: profileResponse } = useGetQuery<UserType>(
+    ["user-profile"],
+    "/auth/me",
+    { enabled: !!currentUser }
+  )
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        try {
+          setCurrentUser(JSON.parse(storedUser))
+        } catch (e) {
+          console.error("Failed to parse user from localStorage")
+        }
+      }
+    }
+  }, [])
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -126,6 +151,71 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
     delete apiClient.defaults.headers.common["Authorization"]
     router.push("/login") // Adjust this to your actual login route if different
+  }
+
+  const role = currentUser?.role || "Employee" // Default fallback
+
+  const navMain = [
+    {
+      title: "Dashboard",
+      url: "/",
+      icon: LayoutDashboard,
+      isActive: true,
+      roles: ["Admin", "HR", "Employee"],
+    },
+    {
+      title: "Employees",
+      url: "/employees",
+      icon: Users,
+      roles: ["Admin", "HR"],
+    },
+    {
+      title: "My Profile",
+      url: "/profile",
+      icon: Users,
+      roles: ["Employee"],
+    },
+    {
+      title: "Department",
+      url: "/departments",
+      icon: Briefcase,
+      roles: ["Admin"],
+    },
+    {
+      title: "Roles",
+      url: "/roles",
+      icon: UserCog,
+      roles: ["Admin"],
+    },
+    {
+      title: "Leaves",
+      url: "/leaves",
+      icon: CalendarOff,
+      roles: ["Admin", "HR", "Employee"],
+    },
+    {
+      title: "Attendance",
+      url: "/attendance",
+      icon: Clock,
+      roles: ["Admin", "HR", "Employee"],
+    },
+  ].filter((item) => item.roles.includes(role))
+
+  const secondary = [
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
+    },
+  ]
+
+  const userData = {
+    name: currentUser?.firstName 
+      ? `${currentUser.firstName} ${currentUser.lastName}` 
+      : currentUser?.username || "Guest",
+    email: currentUser?.email || "guest@example.com",
+    avatar: currentUser?.avatar || "",
+    role: role,
   }
 
   return (
@@ -139,7 +229,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">HR System</span>
-                <span className="">Manager Pro</span>
+                <span className="text-xs text-muted-foreground">{userData.role}</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -149,35 +239,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarMenu>
-            {data.navMain.map((item) => (
+            {navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                {item.items && item.items.length > 0 ? (
-                  <>
-                    <SidebarMenuButton tooltip={item.title}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/menu-button:rotate-90" />
-                    </SidebarMenuButton>
-                    <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </>
-                ) : (
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <a href={item.url}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                )}
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <a href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -185,7 +254,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.secondary.map((item) => (
+              {secondary.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild size="sm">
                     <a href={item.url}>
@@ -209,12 +278,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={data.user.avatar} alt={data.user.name} />
-                    <AvatarFallback className="rounded-lg">HR</AvatarFallback>
+                    <AvatarImage src={userData.avatar} alt={userData.name} />
+                    <AvatarFallback className="rounded-lg">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{data.user.name}</span>
-                    <span className="truncate text-xs">{data.user.email}</span>
+                    <span className="truncate font-semibold">{userData.name}</span>
+                    <span className="truncate text-xs">{userData.email}</span>
                   </div>
                   <MoreHorizontal className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -228,19 +297,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={data.user.avatar} alt={data.user.name} />
-                      <AvatarFallback className="rounded-lg">HR</AvatarFallback>
+                      <AvatarImage src={userData.avatar} alt={userData.name} />
+                      <AvatarFallback className="rounded-lg">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{data.user.name}</span>
-                      <span className="truncate text-xs">{data.user.email}</span>
+                      <span className="truncate font-semibold">{userData.name}</span>
+                      <span className="truncate text-xs">{userData.email}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Settings className="mr-2 size-4" />
-                  Account Settings
+                <DropdownMenuItem onClick={() => setIsProfileOpen(true)} className="cursor-pointer">
+                  <User className="mr-2 size-4" />
+                  View Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 size-4" />
@@ -252,6 +321,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
+      <EmployeeViewDialog
+        isOpen={isProfileOpen}
+        employee={profileResponse?.data as any}
+        onClose={() => setIsProfileOpen(false)}
+      />
     </Sidebar>
   )
 }

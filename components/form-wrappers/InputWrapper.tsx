@@ -71,6 +71,12 @@ export default function InputWrapper<T extends FieldValues>({
               disabled={disabled}
               readOnly={readonly}
               autoComplete={autoComplete}
+              onBlur={(e) => {
+                field.onBlur();
+                if (typeof e.target.value === "string") {
+                  field.onChange(e.target.value.trim());
+                }
+              }}
             />
             {isPassword && (
               <button
