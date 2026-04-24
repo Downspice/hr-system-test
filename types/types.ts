@@ -106,3 +106,15 @@ export interface Leave {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Attendance {
+  id: string;
+  userId: string;
+  user?: Pick<User, "id" | "firstName" | "lastName" | "email">;
+  date: string;
+  checkIn: string;
+  checkOut: string | null;
+  totalHours: number | null;
+  createdAt: string;
+  updatedAt: string;
+}

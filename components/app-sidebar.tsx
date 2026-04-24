@@ -46,7 +46,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { EmployeeViewDialog } from "@/components/EmployeeViewDialog"
+import { EmployeeQuickViewSheet } from "@/components/EmployeeQuickViewSheet"
 import { useGetQuery } from "@/hooks/api-client"
 import { User as UserType } from "@/types/types"
 
@@ -308,7 +308,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
-      <EmployeeViewDialog
+      <EmployeeQuickViewSheet
         isOpen={isProfileOpen}
         employee={profileResponse?.data as any}
         onClose={() => setIsProfileOpen(false)}
