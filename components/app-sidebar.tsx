@@ -15,7 +15,6 @@ import {
   MoreHorizontal,
   Home,
   CheckCircle2,
-  UserCog,
   User,
   CalendarOff,
   Clock,
@@ -90,12 +89,6 @@ const data: {
       title: "Department",
       url: "/departments",
       icon: Briefcase,
-      items: [],
-    },
-    {
-      title: "Roles",
-      url: "/roles",
-      icon: UserCog,
       items: [],
     },
     {
@@ -179,12 +172,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Department",
       url: "/departments",
       icon: Briefcase,
-      roles: ["Admin"],
-    },
-    {
-      title: "Roles",
-      url: "/roles",
-      icon: UserCog,
       roles: ["Admin"],
     },
     {
