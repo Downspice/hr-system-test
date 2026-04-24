@@ -1,6 +1,5 @@
 import { ApiError } from "@/types/types";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { getSession, signOut } from "next-auth/react";
 import { toast } from "sonner";
 
 // Factory to create a client for a given baseURL
@@ -16,14 +15,7 @@ const createApiClient = (baseURL: string): AxiosInstance => {
   client.interceptors.request.use(async (config) => {
     let token: string | null | undefined;
 
-    try {
-      const session = await getSession();
-      token = session?.user?.accessToken;
-    } catch (e) {
-      // Ignore errors if next-auth is not fully configured
-    }
-
-    if (!token && typeof window !== "undefined") {
+    if (typeof window !== "undefined") {
       token = localStorage.getItem("token");
     }
 
@@ -38,7 +30,10 @@ const createApiClient = (baseURL: string): AxiosInstance => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      handleApiError(error.response.data);
+      
+      if (error.response?.data) {
+        handleApiError(error.response.data);
+      }
 
       if (
         error.response?.status === 401 &&
@@ -46,16 +41,11 @@ const createApiClient = (baseURL: string): AxiosInstance => {
         originalRequest.headers["Authorization"]
       ) {
         originalRequest._retry = true;
-        try {
-          const session = await getSession();
-          if (session?.user?.accessToken) {
-            originalRequest.headers.Authorization = `Bearer ${session.user.accessToken}`;
-            return client(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error("Token refresh failed", refreshError);
-          await signOut({ redirect: true, callbackUrl: "/" });
-          return Promise.reject(refreshError);
+        // If unauthorized, clear storage and redirect to login
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/login";
         }
       }
       return Promise.reject(error);
@@ -85,12 +75,14 @@ export const dummyApiClient = async <T>(
 };
 
 export async function handleApiError(error: ApiError) {
-  if (error.message == "[Keycloak Guard] Expired token") {
-    await signOut({ redirect: true, callbackUrl: "/" });
+  if (error.message == "[Keycloak Guard] Expired token" || error.message == "Unauthenticated") {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
   }
-  if (error.message == "Unauthenticated") {
-    await signOut({ redirect: true, callbackUrl: "/" });
-  }
+  
   const status = error?.status;
   const message = error?.message || "Something went wrong. Please try again.";
   console.log(error);

@@ -3,7 +3,7 @@ export interface GenericObject {
   name: string;
 }
 
-export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE";
+export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export interface ApiResponse<T> {
   length: number;
@@ -55,4 +55,54 @@ export interface PaginatedResponse<T> {
     };
   };
   dateTime: string;
+}
+export type Role = 'Admin' | 'HR' | 'Employee';
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  department?: {
+    id: string;
+    name: string;
+  } | null;
+  departmentRole?: {
+    id: string;
+    name: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  managerId?: string;
+  manager?: User;
+}
+
+export interface DepartmentRole {
+  id: string;
+  name: string;
+  description?: string;
+  departmentId: string;
+}
+
+export type LeaveStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface Leave {
+  id: string;
+  userId: string;
+  user?: Pick<User, "id" | "firstName" | "lastName" | "email">;
+  reason: string;
+  startDate: string;
+  endDate: string;
+  status: LeaveStatus;
+  adminNote?: string;
+  createdAt: string;
+  updatedAt: string;
 }
