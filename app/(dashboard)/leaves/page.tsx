@@ -101,6 +101,52 @@ export default function LeavesPage() {
         <div className="flex flex-col items-center justify-center py-20 text-center border rounded-[2rem] bg-zinc-50/50">
           <p className="text-destructive font-medium">Failed to load leave records.</p>
         </div>
+      ) : leaves.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-28 text-center">
+          {/* Icon */}
+          <div className="relative mb-6">
+            <div className="h-24 w-24 rounded-3xl bg-gradient-to-br from-amber-100 to-yellow-200 flex items-center justify-center shadow-inner">
+              <svg
+                className="h-12 w-12 text-amber-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                />
+              </svg>
+            </div>
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-amber-300/60" />
+            <span className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-yellow-300/60" />
+          </div>
+
+          {isAdmin ? (
+            <>
+              <h3 className="text-lg font-semibold text-zinc-800 mb-1">No leave requests yet</h3>
+              <p className="text-sm text-zinc-400 max-w-sm mb-6">
+                Employee leave requests will appear here once they've been submitted. Check back later.
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-semibold text-zinc-800 mb-1">No leave requests yet</h3>
+              <p className="text-sm text-zinc-400 max-w-sm mb-6">
+                You haven't submitted any leave requests. When you need time off, request it here and track the status.
+              </p>
+              <Button
+                onClick={() => setIsRequestModalOpen(true)}
+                className="gap-2 bg-zinc-900 hover:bg-zinc-800 text-white shadow-sm px-5"
+              >
+                <Plus className="h-4 w-4" />
+                Request your first leave
+              </Button>
+            </>
+          )}
+        </div>
       ) : (
         <LeaveDataTable 
           data={leaves} 
