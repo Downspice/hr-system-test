@@ -41,10 +41,12 @@ export default function DepartmentForm({ initialData, onSuccess }: DepartmentFor
 
   const { data: usersResponse } = useGetQuery<User>("users", "/users");
   const users = usersResponse?.data || [];
-  const userOptions = users.map(u => ({
-    label: `${u.firstName} ${u.lastName} (@${u.username})`,
-    value: u.id
-  }));
+  const userOptions = users
+    .filter(u => u.isActive || u.id === initialData?.manager?.id)
+    .map(u => ({
+      label: `${u.firstName} ${u.lastName} (@${u.username})${!u.isActive ? ' (Inactive)' : ''}`,
+      value: u.id
+    }));
 
   const createMutation = usePostMutation<Department, DepartmentFormValues>("/departments");
   const updateMutation = usePutMutation<Department, DepartmentFormValues>(

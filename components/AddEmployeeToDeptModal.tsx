@@ -39,10 +39,11 @@ export function AddEmployeeToDeptModal({
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
       const isNotAlreadyInDept = !existingUserIds.includes(user.id);
+      const isActive = user.isActive;
       const matchesSearch = (user.firstName + " " + user.lastName + " " + user.username)
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      return isNotAlreadyInDept && matchesSearch;
+      return isNotAlreadyInDept && isActive && matchesSearch;
     });
   }, [users, existingUserIds, searchQuery]);
 

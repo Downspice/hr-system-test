@@ -13,14 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AppTable } from "@/components/AppTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -65,7 +58,8 @@ export function DepartmentEmployeeTable({
 
   const columns: ColumnDef<User>[] = [
     {
-      accessorKey: "name",
+      id: "name",
+      accessorFn: (row) => `${row.firstName} ${row.lastName}`,
       header: "Employee",
       cell: ({ row }) => {
         const user = row.original;
@@ -101,6 +95,7 @@ export function DepartmentEmployeeTable({
     },
     {
       id: "departmentRole",
+      accessorFn: (row) => row.departmentRole?.name || "",
       header: "Dept. Role",
       cell: ({ row }) => {
         const role = row.original.departmentRole;
@@ -210,49 +205,19 @@ export function DepartmentEmployeeTable({
       </div>
 
       {/* Table Container */}
-      <div className="rounded-[2rem] border border-zinc-100 bg-white shadow-sm overflow-hidden p-6">
-        <Table>
-          <TableHeader className="border-none hover:bg-transparent">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-zinc-400 font-medium text-xs uppercase tracking-wider h-12">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="group border-none transition-colors hover:bg-zinc-50 rounded-2xl"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground italic">
-                  No employees found in this department.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="rounded-md border border-zinc-100 bg-white shadow-sm overflow-hidden p-6">
+        <AppTable
+          table={table}
+          columnsLength={columns.length}
+          headerClassName="border-none bg-transparent"
+          rowClassName="group border-none hover:bg-zinc-50 rounded-2xl"
+          cellClassName="py-4"
+          emptyState={
+            <div className="h-24 text-center text-muted-foreground italic flex items-center justify-center">
+              No employees found in this department.
+            </div>
+          }
+        />
       </div>
       
       {/* Pagination */}
