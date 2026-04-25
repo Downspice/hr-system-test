@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetQuery, useDeleteMutation, useDynamicPatchMutation } from "@/hooks/api-client";
 import { User, Leave } from "@/types/types";
@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   Mail,
-  Calendar,
   Briefcase,
   Shield,
   Edit2,
@@ -26,11 +25,17 @@ import {
   Fingerprint,
   Ban,
   UserCheck,
+  Calendar as CalendarIcon,
+  RotateCcw,
+  Search,
 } from "lucide-react";
 import { Attendance } from "@/types/types";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { EmployeeDialog } from "@/components/EmployeeDialog";
 import { AppTabs } from "@/components/AppTabs";
+import { addDays, format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
+import { type DateRange } from "react-day-picker";
+import { DateRangePicker } from "@/components/DateRangePicker";
 
 type TabKey = "leaves" | "attendance";
 
@@ -60,6 +65,7 @@ export default function EmployeeProfilePage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const { data: userResponse, isLoading: isUserLoading, refetch } = useGetQuery<User>(
     ["employee", id],
@@ -81,7 +87,19 @@ export default function EmployeeProfilePage() {
 
   const employee = userResponse?.data as unknown as User;
   const leaves: Leave[] = (leavesResponse?.data || []) as unknown as Leave[];
-  const attendances: Attendance[] = (attendanceResponse?.data || []) as unknown as Attendance[];
+  const rawAttendances: Attendance[] = (attendanceResponse?.data || []) as unknown as Attendance[];
+
+  const filteredAttendances = useMemo(() => {
+    if (!dateRange?.from) return rawAttendances;
+    
+    const start = startOfDay(dateRange.from);
+    const end = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+
+    return rawAttendances.filter((record) => {
+      const recordDate = new Date(record.date);
+      return isWithinInterval(recordDate, { start, end });
+    });
+  }, [rawAttendances, dateRange]);
 
   const handleDelete = async () => {
     try {
@@ -224,7 +242,7 @@ export default function EmployeeProfilePage() {
             <div className="space-y-0.5">
               <p className="text-xs text-zinc-400 font-medium">Date Joined</p>
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-zinc-400" />
+                <CalendarIcon className="h-4 w-4 text-zinc-400" />
                 <span className="text-sm text-zinc-700">
                   {new Date(employee.createdAt).toLocaleDateString("en-US", {
                     day: "numeric",
@@ -308,7 +326,7 @@ export default function EmployeeProfilePage() {
                                 <p className="text-sm font-medium text-zinc-800">{leave.reason}</p>
                                 <div className="flex items-center gap-3 text-xs text-zinc-500">
                                   <span className="flex items-center gap-1">
-                                    <Calendar className="h-3 w-3" />
+                                    <CalendarIcon className="h-3 w-3" />
                                     {new Date(leave.startDate).toLocaleDateString("en-US", {
                                       day: "numeric",
                                       month: "short",
@@ -352,26 +370,43 @@ export default function EmployeeProfilePage() {
                 id: "attendance",
                 label: "Attendance History",
                 icon: <Fingerprint className="h-4 w-4" />,
-                count: attendances.length,
+                count: rawAttendances.length,
                 content: (
                   <div className="space-y-4 pt-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 bg-zinc-50/50 p-3 rounded-xl border border-zinc-100">
+                      <DateRangePicker 
+                        dateRange={dateRange}
+                        onDateRangeChange={setDateRange}
+                      />
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-zinc-500 bg-white border border-zinc-100 px-2.5 py-1 rounded-full shadow-sm">
+                          {filteredAttendances.length} records found
+                        </span>
+                      </div>
+                    </div>
+
                     {isAttendanceLoading ? (
                       <div className="space-y-3">
                         {[...Array(3)].map((_, i) => (
                           <Skeleton key={i} className="h-16 rounded-xl" />
                         ))}
                       </div>
-                    ) : attendances.length === 0 ? (
+                    ) : filteredAttendances.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-20 text-center">
                         <div className="h-16 w-16 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
                           <Fingerprint className="h-8 w-8 text-zinc-400" />
                         </div>
-                        <p className="text-base font-medium text-zinc-600">No attendance records yet</p>
-                        <p className="text-sm text-zinc-400 mt-1">Attendance logs will appear here</p>
+                        <p className="text-base font-medium text-zinc-600">
+                          {dateRange ? "No records for this range" : "No attendance records yet"}
+                        </p>
+                        <p className="text-sm text-zinc-400 mt-1">
+                          {dateRange ? "Try selecting a different date range" : "Attendance logs will appear here"}
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {attendances.map((record) => (
+                        {filteredAttendances.map((record) => (
                           <div
                             key={record.id}
                             className="flex items-center justify-between p-4 rounded-xl border border-zinc-100 hover:bg-zinc-50/70 transition-colors"

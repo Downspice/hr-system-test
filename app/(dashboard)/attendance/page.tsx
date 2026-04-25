@@ -8,6 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { Clock, Calendar, ChevronRight, History, Users, ArrowRight } from "lucide-react";
 import { AppTabs } from "@/components/AppTabs";
+import { DateRangePicker } from "@/components/DateRangePicker";
+import { startOfDay, endOfDay, isWithinInterval } from "date-fns";
+import { type DateRange } from "react-day-picker";
+import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -21,6 +25,7 @@ import { Button } from "@/components/ui/button";
 
 export default function AttendancePage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -54,17 +59,32 @@ export default function AttendancePage() {
 
   const todayAttendances = attendances.filter(a => formatDate(a.date) === todayStr);
   
-  // Group previous records by date
-  const groupedHistory = attendances
-    .filter(a => formatDate(a.date) !== todayStr)
-    .reduce((acc, curr) => {
+  // Filter and group previous records
+  const { historyDates, filteredHistoryCount } = useMemo(() => {
+    const previous = attendances.filter(a => formatDate(a.date) !== todayStr);
+    
+    let filtered = previous;
+    if (dateRange?.from) {
+      const start = startOfDay(dateRange.from);
+      const end = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+      filtered = previous.filter(record => {
+        const recordDate = new Date(record.date);
+        return isWithinInterval(recordDate, { start, end });
+      });
+    }
+
+    const grouped = filtered.reduce((acc, curr) => {
       const date = formatDate(curr.date);
       if (!acc[date]) acc[date] = [];
       acc[date].push(curr);
       return acc;
     }, {} as Record<string, Attendance[]>);
 
-  const historyDates = Object.entries(groupedHistory).sort((a, b) => b[0].localeCompare(a[0]));
+    return {
+      historyDates: Object.entries(grouped).sort((a, b) => b[0].localeCompare(a[0])),
+      filteredHistoryCount: filtered.length
+    };
+  }, [attendances, dateRange, todayStr]);
 
   const EmptyState = ({ title, description, icon: Icon }: { title: string, description: string, icon: any }) => (
     <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-[2rem] border border-zinc-100 shadow-sm px-6">
@@ -102,45 +122,63 @@ export default function AttendancePage() {
       label: "Previous Records",
       count: historyDates.length,
       icon: <History className="h-4 w-4" />,
-      content: historyDates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {historyDates.map(([date, records]) => (
-            <Card 
-              key={date}
-              onClick={() => setSelectedDateRecords({ date, records })}
-              className="group p-5 hover:border-zinc-300 hover:shadow-md transition-all cursor-pointer rounded-2xl border-zinc-100 bg-white relative overflow-hidden"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-500 group-hover:bg-zinc-900 group-hover:text-white transition-colors">
-                  <Calendar className="h-5 w-5" />
-                </div>
-                <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 font-bold px-2.5 py-0.5 rounded-lg border-none">
-                  {records.length} {records.length === 1 ? 'Record' : 'Records'}
-                </Badge>
+      content: (
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-zinc-100 shadow-sm">
+            <DateRangePicker 
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
+            {dateRange && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest bg-zinc-50 px-3 py-1.5 rounded-xl border border-zinc-100">
+                  {filteredHistoryCount} records found
+                </span>
               </div>
-              <div>
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Date</p>
-                <h3 className="text-lg font-bold text-zinc-900">
-                  {new Date(date).toLocaleDateString("en-US", { 
-                    weekday: 'long', 
-                    month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
-                  })}
-                </h3>
-              </div>
-              <div className="mt-4 flex items-center text-sm font-semibold text-zinc-400 group-hover:text-zinc-900 transition-colors gap-1">
-                View Details <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Card>
-          ))}
+            )}
+          </div>
+
+          {historyDates.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {historyDates.map(([date, records]) => (
+                <Card 
+                  key={date}
+                  onClick={() => setSelectedDateRecords({ date, records })}
+                  className="group p-5 hover:border-zinc-300 hover:shadow-md transition-all cursor-pointer rounded-2xl border-zinc-100 bg-white relative overflow-hidden"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-500 group-hover:bg-zinc-900 group-hover:text-white transition-colors">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 font-bold px-2.5 py-0.5 rounded-lg border-none">
+                      {records.length} {records.length === 1 ? 'Record' : 'Records'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Date</p>
+                    <h3 className="text-lg font-bold text-zinc-900">
+                      {new Date(date).toLocaleDateString("en-US", { 
+                        weekday: 'long', 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </h3>
+                  </div>
+                  <div className="mt-4 flex items-center text-sm font-semibold text-zinc-400 group-hover:text-zinc-900 transition-colors gap-1">
+                    View Details <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <EmptyState 
+              title={dateRange ? "No records for this range" : "No history found"} 
+              description={dateRange ? "Try selecting a different date range to see past records." : "There are no previous attendance records available in the system."}
+              icon={History}
+            />
+          )}
         </div>
-      ) : (
-        <EmptyState 
-          title="No history found" 
-          description="There are no previous attendance records available in the system."
-          icon={History}
-        />
       )
     }
   ];
