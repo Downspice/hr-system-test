@@ -22,11 +22,17 @@ import {
   XCircle,
   AlertCircle,
   BadgeCent,
+  FileText,
+  Fingerprint,
+  Ban,
+  UserCheck,
 } from "lucide-react";
+import { Attendance } from "@/types/types";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { EmployeeDialog } from "@/components/EmployeeDialog";
+import { AppTabs } from "@/components/AppTabs";
 
-type TabKey = "leaves";
+type TabKey = "leaves" | "attendance";
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   APPROVED: {
@@ -51,7 +57,6 @@ export default function EmployeeProfilePage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [activeTab, setActiveTab] = useState<TabKey>("leaves");
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -66,11 +71,17 @@ export default function EmployeeProfilePage() {
     `/leaves/user/${id}`
   );
 
+  const { data: attendanceResponse, isLoading: isAttendanceLoading } = useGetQuery<Attendance>(
+    ["employee-attendance", id],
+    `/attendance/user/${id}`
+  );
+
   const deleteMutation = useDeleteMutation();
   const statusMutation = useDynamicPatchMutation<User, { isActive: boolean }>();
 
   const employee = userResponse?.data as unknown as User;
   const leaves: Leave[] = (leavesResponse?.data || []) as unknown as Leave[];
+  const attendances: Attendance[] = (attendanceResponse?.data || []) as unknown as Attendance[];
 
   const handleDelete = async () => {
     try {
@@ -147,19 +158,17 @@ export default function EmployeeProfilePage() {
         {/* Action buttons */}
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
             size="sm"
-            className={`h-9 gap-1.5 font-semibold transition-all border shadow-none ${employee.isActive ? 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100'}`}
+            className={`h-9 gap-1.5 font-semibold transition-all shadow-sm border-none ${employee.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
             onClick={() => setIsStatusOpen(true)}
             disabled={statusMutation.isPending}
           >
-            <AlertCircle className="h-3.5 w-3.5" />
+            {employee.isActive ? <Ban className="h-3.5 w-3.5" /> : <UserCheck className="h-3.5 w-3.5" />}
             {employee.isActive ? 'Disable User' : 'Enable User'}
           </Button>
           <Button
-            variant="outline"
             size="sm"
-            className="h-9 gap-1.5 border-zinc-200 text-zinc-700 hover:bg-zinc-50 shadow-none"
+            className="h-9 gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-sm"
             onClick={() => setIsEditOpen(true)}
           >
             <Edit2 className="h-3.5 w-3.5" />
@@ -262,82 +271,155 @@ export default function EmployeeProfilePage() {
         </div>
 
         {/* Right: Tab panel */}
-        <div className="rounded-lg border border-zinc-100 bg-white shadow-sm overflow-hidden">
-          {/* Tabs */}
-
-
-          {/* Tab content */}
-          <div className="p-6">
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-zinc-900">Leave History</h3>
-
-              {isLeavesLoading ? (
-                <div className="space-y-3">
-                  {[...Array(3)].map((_, i) => (
-                    <Skeleton key={i} className="h-16 rounded-xl" />
-                  ))}
-                </div>
-              ) : leaves.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="h-16 w-16 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
-                    <AlertCircle className="h-8 w-8 text-zinc-400" />
-                  </div>
-                  <p className="text-base font-medium text-zinc-600">No leave records yet</p>
-                  <p className="text-sm text-zinc-400 mt-1">Leave history will appear here</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {leaves.map((leave) => {
-                    const config = statusConfig[leave.status] || statusConfig["PENDING"];
-                    return (
-                      <div
-                        key={leave.id}
-                        className="flex items-start justify-between p-4 rounded-xl border border-zinc-100 hover:bg-zinc-50/70 transition-colors"
-                      >
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium text-zinc-800">{leave.reason}</p>
-                          <div className="flex items-center gap-3 text-xs text-zinc-500">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(leave.startDate).toLocaleDateString("en-US", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                              {" → "}
-                              {new Date(leave.endDate).toLocaleDateString("en-US", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
-                            <span>•</span>
-                            <span>
-                              Applied{" "}
-                              {new Date(leave.createdAt).toLocaleDateString("en-US", {
-                                day: "numeric",
-                                month: "short",
-                              })}
-                            </span>
-                          </div>
-                          {leave.adminNote && (
-                            <p className="text-xs text-zinc-400 italic">Note: {leave.adminNote}</p>
-                          )}
-                        </div>
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.color}`}
-                        >
-                          {config.icon}
-                          {config.label}
-                        </span>
+        <div className="rounded-lg border border-zinc-100 bg-white shadow-sm overflow-hidden flex flex-col p-6">
+          <AppTabs
+            tabs={[
+              {
+                id: "leaves",
+                label: "Leave History",
+                icon: <FileText className="h-4 w-4" />,
+                count: leaves.length,
+                content: (
+                  <div className="space-y-4 pt-4">
+                    {isLeavesLoading ? (
+                      <div className="space-y-3">
+                        {[...Array(3)].map((_, i) => (
+                          <Skeleton key={i} className="h-16 rounded-xl" />
+                        ))}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-          </div>
+                    ) : leaves.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="h-16 w-16 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
+                          <AlertCircle className="h-8 w-8 text-zinc-400" />
+                        </div>
+                        <p className="text-base font-medium text-zinc-600">No leave records yet</p>
+                        <p className="text-sm text-zinc-400 mt-1">Leave history will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {leaves.map((leave) => {
+                          const config = statusConfig[leave.status] || statusConfig["PENDING"];
+                          return (
+                            <div
+                              key={leave.id}
+                              className="flex items-start justify-between p-4 rounded-xl border border-zinc-100 hover:bg-zinc-50/70 transition-colors"
+                            >
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium text-zinc-800">{leave.reason}</p>
+                                <div className="flex items-center gap-3 text-xs text-zinc-500">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {new Date(leave.startDate).toLocaleDateString("en-US", {
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
+                                    {" → "}
+                                    {new Date(leave.endDate).toLocaleDateString("en-US", {
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
+                                  </span>
+                                  <span>•</span>
+                                  <span>
+                                    Applied{" "}
+                                    {new Date(leave.createdAt).toLocaleDateString("en-US", {
+                                      day: "numeric",
+                                      month: "short",
+                                    })}
+                                  </span>
+                                </div>
+                                {leave.adminNote && (
+                                  <p className="text-xs text-zinc-400 italic">Note: {leave.adminNote}</p>
+                                )}
+                              </div>
+                              <span
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.color}`}
+                              >
+                                {config.icon}
+                                {config.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              },
+              {
+                id: "attendance",
+                label: "Attendance History",
+                icon: <Fingerprint className="h-4 w-4" />,
+                count: attendances.length,
+                content: (
+                  <div className="space-y-4 pt-4">
+                    {isAttendanceLoading ? (
+                      <div className="space-y-3">
+                        {[...Array(3)].map((_, i) => (
+                          <Skeleton key={i} className="h-16 rounded-xl" />
+                        ))}
+                      </div>
+                    ) : attendances.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="h-16 w-16 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
+                          <Fingerprint className="h-8 w-8 text-zinc-400" />
+                        </div>
+                        <p className="text-base font-medium text-zinc-600">No attendance records yet</p>
+                        <p className="text-sm text-zinc-400 mt-1">Attendance logs will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {attendances.map((record) => (
+                          <div
+                            key={record.id}
+                            className="flex items-center justify-between p-4 rounded-xl border border-zinc-100 hover:bg-zinc-50/70 transition-colors"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="h-10 w-10 rounded-full bg-blue-50 flex flex-col items-center justify-center shrink-0 border border-blue-100">
+                                <span className="text-[10px] font-bold text-blue-600 uppercase">
+                                  {new Date(record.date).toLocaleDateString("en-US", { month: "short" })}
+                                </span>
+                                <span className="text-sm font-bold text-blue-700 -mt-1">
+                                  {new Date(record.date).getDate()}
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-semibold text-zinc-800">
+                                  {new Date(record.date).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                                </p>
+                                <div className="flex items-center gap-3 text-xs text-zinc-500">
+                                  <span className="flex items-center gap-1.5">
+                                    <Clock className="h-3 w-3 text-emerald-500" />
+                                    IN: {new Date(record.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                                  </span>
+                                  {record.checkOut ? (
+                                    <span className="flex items-center gap-1.5">
+                                      <Clock className="h-3 w-3 text-amber-500" />
+                                      OUT: {new Date(record.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                                    </span>
+                                  ) : (
+                                    <span className="text-amber-600 font-medium italic">Still Checked In</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Duration</p>
+                              <p className="text-sm font-bold text-zinc-900">
+                                {record.totalHours ? `${record.totalHours.toFixed(1)} hrs` : "—"}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+            ]}
+          />
         </div>
       </div>
 
