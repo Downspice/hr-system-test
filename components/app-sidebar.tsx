@@ -163,12 +163,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       roles: ["Admin", "HR"],
     },
     {
-      title: "My Profile",
-      url: "/profile",
-      icon: Users,
-      roles: ["Employee"],
-    },
-    {
       title: "Department",
       url: "/departments",
       icon: Briefcase,

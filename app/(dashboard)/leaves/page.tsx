@@ -8,8 +8,9 @@ import { LeaveStatusDialog } from "@/components/LeaveStatusDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar, Plus, Clock, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AppTabs } from "@/components/AppTabs";
 
 export default function LeavesPage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
@@ -63,14 +64,137 @@ export default function LeavesPage() {
   };
 
   const leaves = response?.data || [];
+  const pendingLeaves = leaves.filter(l => l.status === "PENDING");
+  const approvedLeaves = leaves.filter(l => l.status === "APPROVED");
+  const otherLeaves = leaves.filter(l => l.status === "REJECTED");
+
+  const EmptyState = ({ title, description, icon: Icon, showButton = false }: { title: string, description: string, icon: any, showButton?: boolean }) => (
+    <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-[2rem] border border-zinc-100 shadow-sm px-6">
+      <div className="relative mb-6">
+        <div className="h-20 w-20 rounded-3xl bg-zinc-50 flex items-center justify-center shadow-inner group transition-all duration-500 hover:scale-110">
+          <Icon className="h-10 w-10 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
+        </div>
+        <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-zinc-100 animate-pulse" />
+      </div>
+      <h3 className="text-lg font-bold text-zinc-900 mb-1">{title}</h3>
+      <p className="text-sm text-zinc-400 max-w-xs mb-8">
+        {description}
+      </p>
+      {showButton && !isAdmin && (
+        <Button
+          onClick={() => setIsRequestModalOpen(true)}
+          className="rounded-full bg-zinc-900 hover:bg-zinc-800 text-white gap-2 px-6"
+        >
+          <Plus className="h-4 w-4" /> Request Leave
+        </Button>
+      )}
+    </div>
+  );
+
+  const tabs = [
+    {
+      id: "pending",
+      label: "Pending Approvals",
+      count: pendingLeaves.length,
+      icon: <Clock className="h-4 w-4" />,
+      content: pendingLeaves.length > 0 ? (
+        <LeaveDataTable 
+          data={pendingLeaves} 
+          role={role} 
+          onAction={(leave, status) => {
+            setSelectedLeave(leave);
+            setTargetStatus(status);
+            setIsStatusDialogOpen(true);
+          }} 
+        />
+      ) : (
+        <EmptyState 
+          title="No pending requests" 
+          description={isAdmin ? "All caught up! No new leave requests are waiting for your review." : "You don't have any pending leave requests at the moment."}
+          icon={Clock}
+          showButton={true}
+        />
+      )
+    },
+    {
+      id: "approved",
+      label: "Approved",
+      count: approvedLeaves.length,
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      content: approvedLeaves.length > 0 ? (
+        <LeaveDataTable 
+          data={approvedLeaves} 
+          role={role} 
+          onAction={(leave, status) => {
+            setSelectedLeave(leave);
+            setTargetStatus(status);
+            setIsStatusDialogOpen(true);
+          }} 
+        />
+      ) : (
+        <EmptyState 
+          title="No approved leaves" 
+          description={isAdmin ? "No approved leave requests to show yet." : "You don't have any approved leave requests yet."}
+          icon={CheckCircle2}
+        />
+      )
+    },
+    {
+      id: "rejected",
+      label: "Rejected",
+      count: otherLeaves.length,
+      icon: <XCircle className="h-4 w-4" />,
+      content: otherLeaves.length > 0 ? (
+        <LeaveDataTable 
+          data={otherLeaves} 
+          role={role} 
+          onAction={(leave, status) => {
+            setSelectedLeave(leave);
+            setTargetStatus(status);
+            setIsStatusDialogOpen(true);
+          }} 
+        />
+      ) : (
+        <EmptyState 
+          title="No rejected leaves" 
+          description={isAdmin ? "No rejected leave requests to show." : "You don't have any rejected leave requests."}
+          icon={XCircle}
+        />
+      )
+    },
+    {
+      id: "all",
+      label: "All Requests",
+      count: leaves.length,
+      icon: <AlertCircle className="h-4 w-4" />,
+      content: leaves.length > 0 ? (
+        <LeaveDataTable 
+          data={leaves} 
+          role={role} 
+          onAction={(leave, status) => {
+            setSelectedLeave(leave);
+            setTargetStatus(status);
+            setIsStatusDialogOpen(true);
+          }} 
+        />
+      ) : (
+        <EmptyState 
+          title="No leave history" 
+          description={isAdmin ? "No employee leave requests have been submitted yet." : "You haven't submitted any leave requests yet."}
+          icon={Calendar}
+          showButton={true}
+        />
+      )
+    }
+  ];
 
   return (
     <div className="flex flex-col gap-8 p-8 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-400/20">
-              <Calendar className="h-6 w-6 text-black" />
+            <div className="h-12 w-12 rounded-2xl bg-zinc-900 flex items-center justify-center shadow-lg shadow-zinc-900/20">
+              <Calendar className="h-6 w-6 text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
@@ -95,68 +219,15 @@ export default function LeavesPage() {
 
       {isLoading ? (
         <div className="space-y-4">
+          <Skeleton className="h-12 w-[400px] rounded-xl" />
           <Skeleton className="h-[400px] w-full rounded-[2rem]" />
         </div>
       ) : isError ? (
         <div className="flex flex-col items-center justify-center py-20 text-center border rounded-[2rem] bg-zinc-50/50">
           <p className="text-destructive font-medium">Failed to load leave records.</p>
         </div>
-      ) : leaves.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-28 text-center">
-          {/* Icon */}
-          <div className="relative mb-6">
-            <div className="h-24 w-24 rounded-3xl bg-gradient-to-br from-amber-100 to-yellow-200 flex items-center justify-center shadow-inner">
-              <svg
-                className="h-12 w-12 text-amber-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-                />
-              </svg>
-            </div>
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-amber-300/60" />
-            <span className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-yellow-300/60" />
-          </div>
-
-          {isAdmin ? (
-            <>
-              <h3 className="text-lg font-semibold text-zinc-800 mb-1">No leave requests yet</h3>
-              <p className="text-sm text-zinc-400 max-w-sm mb-6">
-                Employee leave requests will appear here once they've been submitted. Check back later.
-              </p>
-            </>
-          ) : (
-            <>
-              <h3 className="text-lg font-semibold text-zinc-800 mb-1">No leave requests yet</h3>
-              <p className="text-sm text-zinc-400 max-w-sm mb-6">
-                You haven't submitted any leave requests. When you need time off, request it here and track the status.
-              </p>
-              <Button
-                onClick={() => setIsRequestModalOpen(true)}
-                className="gap-2 bg-zinc-900 hover:bg-zinc-800 text-white shadow-sm px-5"
-              >
-                <Plus className="h-4 w-4" />
-                Request your first leave
-              </Button>
-            </>
-          )}
-        </div>
       ) : (
-        <LeaveDataTable 
-          data={leaves} 
-          role={role} 
-          onAction={(leave, status) => {
-            setSelectedLeave(leave);
-            setTargetStatus(status);
-            setIsStatusDialogOpen(true);
-          }} 
-        />
+        <AppTabs tabs={tabs} defaultValue="pending" />
       )}
 
       <LeaveRequestModal

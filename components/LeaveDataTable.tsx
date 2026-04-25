@@ -13,26 +13,19 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { 
-  Search, 
-  ChevronLeft, 
-  ChevronRight, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
   Clock,
   MoreVertical
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AppTable } from "@/components/AppTable";
 import { Badge } from "@/components/ui/badge";
 import { Leave, LeaveStatus, Role } from "@/types/types";
 import { cn } from "@/lib/utils";
@@ -58,7 +51,8 @@ export function LeaveDataTable({ data, role, onAction }: LeaveDataTableProps) {
 
   const columns: ColumnDef<Leave>[] = [
     ...(isAdmin ? [{
-      accessorKey: "user",
+      id: "user",
+      accessorFn: (row) => `${row.user?.firstName} ${row.user?.lastName}`,
       header: "Employee",
       cell: ({ row }) => {
         const user = row.original.user;
@@ -131,17 +125,17 @@ export function LeaveDataTable({ data, role, onAction }: LeaveDataTableProps) {
 
         return (
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="h-8 rounded-full border-emerald-200 text-emerald-700 hover:bg-emerald-50"
               onClick={() => onAction?.(leave, "APPROVED")}
             >
               Approve
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="h-8 rounded-full border-rose-200 text-rose-700 hover:bg-rose-50"
               onClick={() => onAction?.(leave, "REJECTED")}
             >
@@ -169,9 +163,9 @@ export function LeaveDataTable({ data, role, onAction }: LeaveDataTableProps) {
       columnVisibility,
     },
     initialState: {
-        pagination: {
-            pageSize: 5
-        }
+      pagination: {
+        pageSize: 5
+      }
     }
   });
 
@@ -191,72 +185,39 @@ export function LeaveDataTable({ data, role, onAction }: LeaveDataTableProps) {
         </div>
       </div>
 
-      <div className="rounded-[2rem] border border-zinc-100 bg-white shadow-xl shadow-zinc-200/20 overflow-hidden">
-        <Table>
-          <TableHeader className="bg-zinc-50/50">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-zinc-100">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="h-12 text-xs font-semibold text-zinc-500 uppercase tracking-wider px-6">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-zinc-50/30 transition-colors border-zinc-100"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="py-0">
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="relative mb-5">
-                      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center shadow-sm">
-                        <svg
-                          className="h-10 w-10 text-amber-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-                          />
-                        </svg>
-                      </div>
-                      <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-amber-200" />
-                    </div>
-                    <p className="text-base font-semibold text-zinc-700">No leave requests found</p>
-                    <p className="text-sm text-zinc-400 mt-1 max-w-xs">
-                      {isAdmin
-                        ? "No employee leave requests have been submitted yet."
-                        : "You haven't submitted any leave requests yet."}
-                    </p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="rounded-md border border-zinc-100 bg-white shadow-xl shadow-zinc-200/20 overflow-hidden">
+        <AppTable
+          table={table}
+          columnsLength={columns.length}
+          emptyState={
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="relative mb-5">
+                <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center shadow-sm">
+                  <svg
+                    className="h-10 w-10 text-amber-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                    />
+                  </svg>
+                </div>
+                <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-amber-200" />
+              </div>
+              <p className="text-base font-semibold text-zinc-700">No leave requests found</p>
+              <p className="text-sm text-zinc-400 mt-1 max-w-xs">
+                {isAdmin
+                  ? "No employee leave requests have been submitted yet."
+                  : "You haven't submitted any leave requests yet."}
+              </p>
+            </div>
+          }
+        />
       </div>
 
       <div className="flex items-center justify-between px-2 py-4">
