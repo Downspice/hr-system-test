@@ -64,6 +64,7 @@ export default function EmployeesPage() {
             setSelectedUser(undefined);
             setIsFormOpen(true);
           }}
+          onRefresh={refetch}
         />
       )}
 

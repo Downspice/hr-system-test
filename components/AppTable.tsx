@@ -35,11 +35,12 @@ export function AppTable<TData>({
       <TableHeader className={cn("bg-zinc-50/50", headerClassName)}>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id} className="hover:bg-transparent border-zinc-100">
-            {headerGroup.headers.map((header) => (
+            {headerGroup.headers.map((header, index) => (
               <TableHead
                 key={header.id}
                 className={cn(
-                  "h-12 text-xs font-semibold text-zinc-500 uppercase tracking-wider px-6 group",
+                  "h-12 text-xs font-semibold text-zinc-500 uppercase tracking-wider px-6 group whitespace-nowrap",
+                  index === 0 && "sticky left-0 z-20 bg-zinc-50",
                   header.column.getCanSort() && "cursor-pointer select-none hover:bg-zinc-100/50 transition-colors"
                 )}
                 onClick={header.column.getToggleSortingHandler()}
@@ -74,8 +75,15 @@ export function AppTable<TData>({
               key={row.id}
               className={cn("hover:bg-zinc-50/30 transition-colors border-zinc-100", rowClassName)}
             >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className={cn("px-6 py-4", cellClassName)}>
+              {row.getVisibleCells().map((cell, index) => (
+                <TableCell
+                  key={cell.id}
+                  className={cn(
+                    "px-6 py-4 whitespace-nowrap",
+                    index === 0 && "sticky left-0 z-10 bg-white ",
+                    cellClassName
+                  )}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

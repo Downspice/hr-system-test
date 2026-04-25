@@ -26,24 +26,48 @@ import {
   SlidersHorizontal,
   Filter,
   ChevronLeft,
+  Ban,
+  UserCheck,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { User, Department } from "@/types/types";
 import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
-import { useGetQuery } from "@/hooks/api-client";
+import { useGetQuery, useDynamicPatchMutation } from "@/hooks/api-client";
+import { toast } from "sonner";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
 interface EmployeeDataTableProps {
   data: User[];
   onView: (user: User) => void;
   onDelete: (user: User) => void;
   onCreate?: () => void;
+  onRefresh?: () => void;
 }
 
-export function EmployeeDataTable({ data, onView, onDelete, onCreate }: EmployeeDataTableProps) {
+export function EmployeeDataTable({ data, onView, onDelete, onCreate, onRefresh }: EmployeeDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = React.useState(false);
+  const [userToToggle, setUserToToggle] = React.useState<User | null>(null);
+  const statusMutation = useDynamicPatchMutation();
+
+  const handleToggleStatus = async () => {
+    if (!userToToggle) return;
+    try {
+      await statusMutation.mutateAsync({
+        url: `/users/${userToToggle.id}/status`,
+        payload: { isActive: !userToToggle.isActive }
+      });
+      toast.success(`User ${!userToToggle.isActive ? 'enabled' : 'disabled'} successfully`);
+      setIsStatusDialogOpen(false);
+      setUserToToggle(null);
+      if (onRefresh) onRefresh();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update user status");
+    }
+  };
 
   const columns: ColumnDef<User>[] = [
     {
@@ -63,19 +87,13 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
               </Avatar>
               <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${user.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
             </div>
-            <span className="font-medium text-sm text-zinc-900">{fullName}</span>
+            <div className="flex flex-col">
+              <span className="font-medium text-sm text-zinc-900">{fullName}</span>
+              <span className="text-xs text-zinc-500">{user.email}</span>
+            </div>
           </div>
         );
       },
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => (
-        <a href={`mailto:${row.getValue("email")}`} className="text-sm text-blue-600 hover:underline">
-          {row.getValue("email")}
-        </a>
-      ),
     },
     {
       accessorKey: "role",
@@ -135,6 +153,25 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
       ),
     },
     {
+      id: "isPresent",
+      accessorFn: (row) => (row.isPresent || row.role === 'Admin' || row.role === 'HR') ? "Present" : "Absent",
+      header: "Presence",
+      cell: ({ row }) => {
+        const isPresent = row.getValue("isPresent") === "Present";
+        return (
+          <div className="flex items-center gap-2">
+            <div className={`h-1.5 w-1.5 rounded-full ${isPresent ? 'bg-blue-500 animate-pulse' : 'bg-zinc-300'}`} />
+            <span className={`text-xs font-semibold ${isPresent ? 'text-blue-700' : 'text-zinc-500'}`}>
+              {isPresent ? 'Present' : 'Absent'}
+            </span>
+          </div>
+        );
+      },
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
       accessorKey: "createdAt",
       header: "Joined date",
       cell: ({ row }) => {
@@ -157,6 +194,17 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
             title="View profile"
           >
             <Eye className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => {
+              setUserToToggle(row.original);
+              setIsStatusDialogOpen(true);
+            }}
+            className={`inline-flex items-center justify-center h-8 w-8 rounded-lg transition-colors shadow-sm ${row.original.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
+            title={row.original.isActive ? 'Disable user' : 'Enable user'}
+            disabled={statusMutation.isPending}
+          >
+            {row.original.isActive ? <Ban className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
           </button>
           <button
             onClick={() => onDelete(row.original)}
@@ -209,6 +257,11 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
     { label: "Employee", value: "Employee" },
   ];
 
+  const presenceOptions = [
+    { label: "Present", value: "Present" },
+    { label: "Absent", value: "Absent" },
+  ];
+
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
@@ -242,6 +295,12 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
             column={table.getColumn("department")}
             title="Department"
             options={departmentOptions}
+          />
+
+          <DataTableFacetedFilter
+            column={table.getColumn("isPresent")}
+            title="Presence"
+            options={presenceOptions}
           />
 
           {isFiltered && (
@@ -312,6 +371,23 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
           </Button>
         </div>
       </div>
+
+      <DeleteConfirmDialog
+        isOpen={isStatusDialogOpen}
+        onClose={() => {
+          setIsStatusDialogOpen(false);
+          setUserToToggle(null);
+        }}
+        onConfirm={handleToggleStatus}
+        title={userToToggle?.isActive ? "Disable User Account" : "Enable User Account"}
+        description={userToToggle?.isActive 
+          ? `Are you sure you want to disable ${userToToggle.firstName}'s account? They will no longer be able to log in.`
+          : `Are you sure you want to enable ${userToToggle?.firstName}'s account? They will regain access to the system.`
+        }
+        isDeleting={statusMutation.isPending}
+        variant={userToToggle?.isActive ? "destructive" : "primary"}
+        confirmText={userToToggle?.isActive ? "Disable Account" : "Enable Account"}
+      />
     </div>
   );
 }

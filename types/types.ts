@@ -66,6 +66,7 @@ export interface User {
   lastName: string;
   role: Role;
   isActive: boolean;
+  isPresent: boolean;
   department?: {
     id: string;
     name: string;
