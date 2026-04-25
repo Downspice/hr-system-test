@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@/types/types";
-import { Mail, Briefcase, Shield, Calendar, X, ArrowRight, DollarSign } from "lucide-react";
+import { Mail, Briefcase, Shield, Calendar, X, ArrowRight, BadgeCent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface EmployeeQuickViewSheetProps {
@@ -50,7 +50,7 @@ export function EmployeeQuickViewSheet({ employee, isOpen, onClose }: EmployeeQu
       }),
     },
     {
-      icon: <DollarSign className="h-3.5 w-3.5" />,
+      icon: <BadgeCent className="h-3.5 w-3.5" />,
       label: "Salary",
       value: new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -94,14 +94,15 @@ export function EmployeeQuickViewSheet({ employee, isOpen, onClose }: EmployeeQu
             <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-3">
               Basic Information
             </h3>
-            <div className="space-y-0 divide-y divide-zinc-100 border border-zinc-100 rounded-xl overflow-hidden">
+            <div className="space-y-4">
               {infoRows.map((row) => (
-                <div key={row.label} className="flex items-center justify-between px-4 py-3 bg-white hover:bg-zinc-50/60 transition-colors">
-                  <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                <div key={row.label} className="group relative flex items-center">
+                  <div className="flex items-center gap-2 text-zinc-500 text-[11px] font-semibold  tracking-wider shrink-0 bg-white pr-2 z-10">
                     {row.icon}
                     <span>{row.label}</span>
                   </div>
-                  <span className="text-xs font-medium text-zinc-800 text-right max-w-[180px] truncate">
+                  <div className="flex-1 border-b border-dotted border-zinc-200 mt-1" />
+                  <span className="text-[13px] font-medium text-zinc-800 pl-2 bg-white z-10">
                     {row.value}
                   </span>
                 </div>
@@ -114,22 +115,25 @@ export function EmployeeQuickViewSheet({ employee, isOpen, onClose }: EmployeeQu
             <h3 className="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-3">
               Role Information
             </h3>
-            <div className="rounded-xl border border-zinc-100 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 bg-white">
-                <span className="text-xs text-zinc-500">System Role</span>
-                <span className="text-xs font-semibold text-zinc-800 bg-zinc-100 px-2 py-0.5 rounded-full">
+            <div className="space-y-4">
+              <div className="group relative flex items-center">
+                <span className="text-[11px] font-semibold text-zinc-500  tracking-wider shrink-0 bg-white pr-2 z-10">System Role</span>
+                <div className="flex-1 border-b border-dotted border-zinc-200 mt-1" />
+                <span className="text-[13px] font-bold text-amber-600 pl-2 bg-white z-10">
                   {employee.role}
                 </span>
               </div>
-              <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-zinc-100">
-                <span className="text-xs text-zinc-500">Account Status</span>
-                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${employee.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-600'}`}>
+              <div className="group relative flex items-center">
+                <span className="text-[11px] font-semibold text-zinc-500  tracking-wider shrink-0 bg-white pr-2 z-10">Account Status</span>
+                <div className="flex-1 border-b border-dotted border-zinc-200 mt-1" />
+                <span className={`text-[11px] font-bold  tracking-wider pl-2 bg-white z-10 ${employee.isActive ? 'text-emerald-600' : 'text-zinc-400'}`}>
                   {employee.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-zinc-100">
-                <span className="text-xs text-zinc-500">Username</span>
-                <span className="text-xs font-mono text-zinc-600">@{employee.username}</span>
+              <div className="group relative flex items-center">
+                <span className="text-[11px] font-semibold text-zinc-500  tracking-wider shrink-0 bg-white pr-2 z-10">Username</span>
+                <div className="flex-1 border-b border-dotted border-zinc-200 mt-1" />
+                <span className="text-[13px] font-mono text-zinc-600 pl-2 bg-white z-10">@{employee.username}</span>
               </div>
             </div>
           </div>

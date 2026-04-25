@@ -21,7 +21,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  DollarSign,
+  BadgeCent,
 } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { EmployeeDialog } from "@/components/EmployeeDialog";
@@ -249,7 +249,7 @@ export default function EmployeeProfilePage() {
             <div className="space-y-0.5">
               <p className="text-xs text-zinc-400 font-medium">Salary</p>
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-zinc-400" />
+                <BadgeCent className="h-4 w-4 text-zinc-400" />
                 <span className="text-sm font-semibold text-zinc-900">
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
