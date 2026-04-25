@@ -65,6 +65,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: Role;
+  isActive: boolean;
   department?: {
     id: string;
     name: string;
@@ -73,6 +74,7 @@ export interface User {
     id: string;
     name: string;
   } | null;
+  salary?: number;
   createdAt: string;
   updatedAt: string;
 }

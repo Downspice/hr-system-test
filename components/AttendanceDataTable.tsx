@@ -22,14 +22,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AppTable } from "@/components/AppTable";
 import { Badge } from "@/components/ui/badge";
 import { Attendance, Role } from "@/types/types";
 
@@ -47,7 +40,8 @@ export function AttendanceDataTable({ data, role }: AttendanceDataTableProps) {
 
   const columns: ColumnDef<Attendance>[] = [
     ...(isAdmin ? [{
-      accessorKey: "user",
+      id: "user",
+      accessorFn: (row) => `${row.user?.firstName} ${row.user?.lastName}`,
       header: "Employee",
       cell: ({ row }) => {
         const user = row.original.user;
@@ -132,59 +126,26 @@ export function AttendanceDataTable({ data, role }: AttendanceDataTableProps) {
 
   return (
     <div className="w-full space-y-4">
-      <div className="rounded-[2rem] border border-zinc-100 bg-white shadow-xl shadow-zinc-200/20 overflow-hidden">
-        <Table>
-          <TableHeader className="bg-zinc-50/50">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-zinc-100">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="h-12 text-xs font-semibold text-zinc-500 uppercase tracking-wider px-6">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-zinc-50/30 transition-colors border-zinc-100"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="py-0">
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="relative mb-5">
-                      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-zinc-50 to-zinc-100 flex items-center justify-center shadow-sm">
-                        <Clock className="h-10 w-10 text-zinc-400" />
-                      </div>
-                    </div>
-                    <p className="text-base font-semibold text-zinc-700">No attendance records found</p>
-                    <p className="text-sm text-zinc-400 mt-1 max-w-xs">
-                      {isAdmin
-                        ? "No employee attendance records exist yet."
-                        : "You haven't checked in yet."}
-                    </p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="rounded-md border border-zinc-100 bg-white shadow-xl shadow-zinc-200/20 overflow-hidden">
+        <AppTable
+          table={table}
+          columnsLength={columns.length}
+          emptyState={
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="relative mb-5">
+                <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-zinc-50 to-zinc-100 flex items-center justify-center shadow-sm">
+                  <Clock className="h-10 w-10 text-zinc-400" />
+                </div>
+              </div>
+              <p className="text-base font-semibold text-zinc-700">No attendance records found</p>
+              <p className="text-sm text-zinc-400 mt-1 max-w-xs">
+                {isAdmin
+                  ? "No employee attendance records exist yet."
+                  : "You haven't checked in yet."}
+              </p>
+            </div>
+          }
+        />
       </div>
 
       <div className="flex items-center justify-between px-2 py-4">
