@@ -13,14 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AppTable } from "@/components/AppTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,12 +22,15 @@ import {
   Search,
   Plus,
   Download,
-  ChevronLeft,
   ChevronRight,
   SlidersHorizontal,
+  Filter,
+  ChevronLeft,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { User } from "@/types/types";
+import { User, Department } from "@/types/types";
+import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
+import { useGetQuery } from "@/hooks/api-client";
 
 interface EmployeeDataTableProps {
   data: User[];
@@ -60,10 +56,13 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
         const initials = `${user.firstName[0]}${user.lastName[0]}`;
         return (
           <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 ring-2 ring-white shadow-sm">
-              <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
-              <AvatarFallback className="bg-zinc-800 text-white text-xs font-bold">{initials}</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-9 w-9 ring-2 ring-white shadow-sm">
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
+                <AvatarFallback className="bg-zinc-800 text-white text-xs font-bold">{initials}</AvatarFallback>
+              </Avatar>
+              <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${user.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+            </div>
             <span className="font-medium text-sm text-zinc-900">{fullName}</span>
           </div>
         );
@@ -84,12 +83,55 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
       cell: ({ row }) => (
         <span className="text-sm text-zinc-700">{row.getValue("role")}</span>
       ),
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
     },
     {
       id: "department",
+      accessorFn: (row) => row.department?.name || "Unassigned",
       header: "Department",
       cell: ({ row }) => (
         <span className="text-sm text-zinc-600">{row.original.department?.name || "—"}</span>
+      ),
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      id: "departmentRole",
+      header: "Dept. Role",
+      cell: ({ row }) => {
+        const role = row.original.departmentRole;
+        return role ? (
+          <span className="text-sm text-zinc-600">{role.name}</span>
+        ) : (
+          <span className="text-sm text-zinc-400 italic">—</span>
+        );
+      },
+    },
+    {
+      accessorKey: "salary",
+      header: "Salary",
+      cell: ({ row }) => {
+        const salary = row.original.salary || 0;
+        const formatted = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "GHS",
+        }).format(salary);
+        return <span className="text-sm font-medium text-zinc-700">{formatted}</span>;
+      },
+    },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <div className={`h-1.5 w-1.5 rounded-full ${row.original.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+          <span className={`text-xs font-semibold ${row.original.isActive ? 'text-emerald-700' : 'text-zinc-500'}`}>
+            {row.original.isActive ? 'Active' : 'Inactive'}
+          </span>
+        </div>
       ),
     },
     {
@@ -153,6 +195,22 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
 
   const totalCount = table.getFilteredRowModel().rows.length;
 
+  const { data: departmentsResponse } = useGetQuery<Department>("departments", "/departments");
+  const departments = departmentsResponse?.data || [];
+
+  const departmentOptions = departments.map((dept) => ({
+    label: dept.name,
+    value: dept.name,
+  }));
+
+  const roleOptions = [
+    { label: "Admin", value: "Admin" },
+    { label: "HR", value: "HR" },
+    { label: "Employee", value: "Employee" },
+  ];
+
+  const isFiltered = table.getState().columnFilters.length > 0;
+
   return (
     <div className="space-y-0">
       {/* Header */}
@@ -162,33 +220,43 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-          <Input
-            placeholder="Search..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-9 h-9 bg-white border-zinc-200 rounded-lg text-sm focus-visible:ring-zinc-400"
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex flex-1 items-center gap-2">
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+            <Input
+              placeholder="Search..."
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="pl-9 h-9 bg-white border-zinc-200 rounded-lg text-sm focus-visible:ring-zinc-400"
+            />
+          </div>
+          
+          <DataTableFacetedFilter
+            column={table.getColumn("role")}
+            title="Role"
+            options={roleOptions}
           />
+
+          <DataTableFacetedFilter
+            column={table.getColumn("department")}
+            title="Department"
+            options={departmentOptions}
+          />
+
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              onClick={() => table.resetColumnFilters()}
+              className="h-9 px-2 lg:px-3 text-sm text-zinc-500"
+            >
+              Reset
+              <Plus className="ml-2 h-4 w-4 rotate-45" />
+            </Button>
+          )}
         </div>
+
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-1.5 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 text-sm"
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-1.5 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 text-sm"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Columns
-          </Button>
           <Button
             size="sm"
             className="h-9 gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-sm"
@@ -201,45 +269,19 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate }: Employee
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-zinc-100 bg-zinc-50 hover:bg-zinc-50">
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="text-xs font-semibold text-zinc-500 uppercase tracking-wider h-11 px-4"
-                  >
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="border-b border-zinc-50 hover:bg-zinc-50/80 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3.5 h-[60px]">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-32 text-center text-zinc-400 text-sm">
-                  No employees found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="rounded-md border border-zinc-200 bg-white overflow-hidden shadow-sm">
+        <AppTable
+          table={table}
+          columnsLength={columns.length}
+          headerClassName="bg-zinc-50"
+          rowClassName="border-b border-zinc-50 hover:bg-zinc-50/80"
+          cellClassName="px-4 py-3.5 h-[60px]"
+          emptyState={
+            <div className="h-32 flex items-center justify-center text-zinc-400 text-sm">
+              No employees found.
+            </div>
+          }
+        />
       </div>
 
       {/* Footer */}

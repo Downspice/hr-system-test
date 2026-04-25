@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@/types/types";
-import { Mail, Briefcase, Shield, Calendar, X, ArrowRight } from "lucide-react";
+import { Mail, Briefcase, Shield, Calendar, X, ArrowRight, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface EmployeeQuickViewSheetProps {
@@ -49,6 +49,14 @@ export function EmployeeQuickViewSheet({ employee, isOpen, onClose }: EmployeeQu
         year: "numeric",
       }),
     },
+    {
+      icon: <DollarSign className="h-3.5 w-3.5" />,
+      label: "Salary",
+      value: new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "GHS",
+      }).format(employee.salary || 0),
+    },
   ];
 
   return (
@@ -68,10 +76,13 @@ export function EmployeeQuickViewSheet({ employee, isOpen, onClose }: EmployeeQu
 
         {/* Hero header */}
         <div className="relative bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-300 px-6 pt-10 pb-6 flex flex-col items-center">
-          <Avatar className="h-24 w-24 ring-4 ring-white shadow-xl">
-            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.username}`} />
-            <AvatarFallback className="bg-zinc-800 text-white text-2xl font-bold">{initials}</AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-24 w-24 ring-4 ring-white shadow-xl">
+              <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.username}`} />
+              <AvatarFallback className="bg-zinc-800 text-white text-2xl font-bold">{initials}</AvatarFallback>
+            </Avatar>
+            <span className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-4 border-white shadow-sm ${employee.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+          </div>
           <h2 className="mt-4 text-xl font-bold text-zinc-900">{fullName}</h2>
           <p className="text-sm text-zinc-700 mt-0.5">{employee.role}</p>
         </div>
@@ -108,6 +119,12 @@ export function EmployeeQuickViewSheet({ employee, isOpen, onClose }: EmployeeQu
                 <span className="text-xs text-zinc-500">System Role</span>
                 <span className="text-xs font-semibold text-zinc-800 bg-zinc-100 px-2 py-0.5 rounded-full">
                   {employee.role}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-zinc-100">
+                <span className="text-xs text-zinc-500">Account Status</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${employee.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-600'}`}>
+                  {employee.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
               <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-zinc-100">

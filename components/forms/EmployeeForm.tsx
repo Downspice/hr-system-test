@@ -21,12 +21,22 @@ const employeeSchema = z.object({
   role: z.enum(["Admin", "HR", "Employee"] as const),
   departmentId: z.string().optional(),
   departmentRoleId: z.string().optional(),
+  salary: z.coerce.number().min(0, "Salary must be a positive number").optional(),
 }).refine((data) => {
   // Password is required for new employees, optional for updates
-  return true; // We'll handle validation in the component if needed, or just let the backend handle it
+  return true; 
 }, {
   message: "Password is required for new employees",
   path: ["password"],
+}).refine((data) => {
+  // Department is required for salary
+  if (data.salary && data.salary > 0 && !data.departmentId) {
+    return false;
+  }
+  return true;
+}, {
+  message: "A department must be assigned before setting a salary",
+  path: ["salary"],
 });
 
 type EmployeeFormValues = z.infer<typeof employeeSchema>;
@@ -54,6 +64,7 @@ export default function EmployeeForm({ initialData, onSuccess }: EmployeeFormPro
       role: initialData?.role || "Employee",
       departmentId: initialData?.department?.id || "",
       departmentRoleId: initialData?.departmentRole?.id || "",
+      salary: initialData?.salary || 0,
     },
   });
 
@@ -151,6 +162,17 @@ export default function EmployeeForm({ initialData, onSuccess }: EmployeeFormPro
           name="departmentRoleId"
           label="Department Role"
           options={roleOptions}
+          disabled={!selectedDeptId}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <InputWrapper 
+          control={control} 
+          name="salary" 
+          label="Salary" 
+          type="number" 
+          placeholder={!selectedDeptId ? "Select a department first" : "0.00"}
           disabled={!selectedDeptId}
         />
       </div>
