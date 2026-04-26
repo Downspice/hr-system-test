@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { AppAvatar } from "./AppAvatar";
 import { User } from "@/types/types";
 
 interface DepartmentEmployeeTableProps {
@@ -70,10 +71,11 @@ export function DepartmentEmployeeTable({
         const initials = `${user.firstName[0]}${user.lastName[0]}`;
         return (
           <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
+            <AppAvatar 
+              user={user} 
+              className="h-9 w-9"
+              showStatus
+            />
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
                 <span className="font-medium text-sm">{fullName}</span>

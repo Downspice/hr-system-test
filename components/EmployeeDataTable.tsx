@@ -31,6 +31,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { AppAvatar } from "./AppAvatar";
 import { User, Department } from "@/types/types";
 import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
 import { useGetQuery, useDynamicPatchMutation } from "@/hooks/api-client";
@@ -82,13 +83,11 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
         const initials = `${user.firstName[0]}${user.lastName[0]}`;
         return (
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <Avatar className="h-9 w-9 ring-2 ring-white shadow-sm">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
-                <AvatarFallback className="bg-zinc-800 text-white text-xs font-bold">{initials}</AvatarFallback>
-              </Avatar>
-              <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${user.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
-            </div>
+            <AppAvatar 
+              user={user} 
+              className="h-9 w-9 ring-2 ring-white shadow-sm"
+              showStatus 
+            />
             <div className="flex flex-col">
               <span className="font-medium text-sm text-zinc-900">{fullName}</span>
               <span className="text-xs text-zinc-500">{user.email}</span>

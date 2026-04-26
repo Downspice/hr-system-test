@@ -7,6 +7,7 @@ import { User, Leave } from "@/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppAvatar } from "@/components/AppAvatar";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -211,13 +212,13 @@ export default function EmployeeProfilePage() {
 
           {/* Avatar */}
           <div className="flex flex-col items-center pt-2 pb-4">
-            <div className="relative">
-              <Avatar className="h-24 w-24 ring-4 ring-zinc-100 shadow-md">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.username}`} />
-                <AvatarFallback className="bg-zinc-800 text-white text-2xl font-bold">{initials}</AvatarFallback>
-              </Avatar>
-              <span className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-4 border-white shadow-sm ${employee.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
-            </div>
+            <AppAvatar 
+              user={employee} 
+              className="h-24 w-24 ring-4 ring-zinc-100 shadow-md"
+              fallbackClassName="text-2xl"
+              showStatus
+              statusClassName="bottom-1 right-1 h-5 w-5 border-4"
+            />
             <h3 className="mt-4 text-lg font-bold text-zinc-900">{fullName}</h3>
           </div>
 
