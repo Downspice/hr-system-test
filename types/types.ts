@@ -6,10 +6,10 @@ export interface GenericObject {
 export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export interface ApiResponse<T> {
-  length: number;
-  data: T[];
+  data: T;
   message: string;
   statusCode: number;
+  length?: number;
 }
 
 export interface ApiError {
@@ -84,7 +84,7 @@ export interface Department {
   id: string;
   name: string;
   description?: string;
-  managerId?: string;
+  departmentManager?: string;
   manager?: User;
 }
 

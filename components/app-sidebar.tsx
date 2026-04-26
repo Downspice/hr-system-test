@@ -104,13 +104,7 @@ const data: {
       items: [],
     },
   ],
-  secondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-  ],
+  secondary: [],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -182,13 +176,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ].filter((item) => item.roles.includes(role))
 
-  const secondary = [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-  ]
+  const secondary: any[] = []
 
   const userData = {
     name: currentUser?.firstName 

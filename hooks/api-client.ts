@@ -7,7 +7,7 @@ import { AxiosError } from "axios";
 export function useGetQuery<TData>(
   queryKey: string | readonly unknown[],
   url: string,
-  options?: UseQueryOptions<ApiResponse<TData>, AxiosError<ApiError>>
+  options?: Omit<UseQueryOptions<ApiResponse<TData>, AxiosError<ApiError>>, 'queryKey' | 'queryFn'>
 ) {
   const formattedKey = Array.isArray(queryKey) ? queryKey : [queryKey];
   return useQuery<ApiResponse<TData>, AxiosError<ApiError>>({
