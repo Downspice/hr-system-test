@@ -44,7 +44,7 @@ export default function AttendancePage() {
   // Endpoint depends on role
   const endpoint = isAdmin ? "/attendance" : "/attendance/my-history";
   
-  const { data: response, isLoading, isError } = useGetQuery<Attendance>(
+  const { data: response, isLoading, isError } = useGetQuery<Attendance[]>(
     ["attendances", role],
     endpoint
   );

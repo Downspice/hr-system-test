@@ -41,9 +41,9 @@ export function AttendanceDataTable({ data, role }: AttendanceDataTableProps) {
   const columns: ColumnDef<Attendance>[] = [
     ...(isAdmin ? [{
       id: "user",
-      accessorFn: (row) => `${row.user?.firstName} ${row.user?.lastName}`,
+      accessorFn: (row: any) => `${row.user?.firstName} ${row.user?.lastName}`,
       header: "Employee",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const user = row.original.user;
         return (
           <div className="flex flex-col">

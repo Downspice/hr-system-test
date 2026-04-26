@@ -24,7 +24,7 @@ export function AttendanceWidget() {
   const checkInMutation = usePostMutation<Attendance, void>("/attendance/check-in");
   const checkOutMutation = usePutMutation<Attendance, void>("/attendance/check-out");
 
-  const attendanceRecord = response?.data as unknown as Attendance | null;
+  const attendanceRecord = response?.data;
 
   const handleCheckIn = async () => {
     try {
