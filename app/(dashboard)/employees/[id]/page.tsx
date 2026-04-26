@@ -19,6 +19,13 @@ import {
   Ban,
   UserCheck,
   Calendar as CalendarIcon,
+  Mail,
+  Fingerprint,
+  AlertCircle,
+  Shield,
+  BadgeCent,
+  Briefcase,
+  FileText,
 } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { EmployeeDialog } from "@/components/EmployeeDialog";
@@ -95,7 +102,7 @@ export default function EmployeeProfilePage() {
 
   const filteredAttendances = useMemo(() => {
     if (!dateRange?.from) return rawAttendances;
-    
+
     const start = startOfDay(dateRange.from);
     const end = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
 
@@ -217,8 +224,8 @@ export default function EmployeeProfilePage() {
 
           {/* Avatar */}
           <div className="flex flex-col items-center pt-2 pb-4">
-            <AppAvatar 
-              user={employee} 
+            <AppAvatar
+              user={employee}
               className="h-24 w-24 ring-4 ring-zinc-100 shadow-md"
               fallbackClassName="text-2xl"
               showStatus
@@ -380,7 +387,7 @@ export default function EmployeeProfilePage() {
                 content: (
                   <div className="space-y-4 pt-4">
                     <div className="flex flex-wrap items-center justify-between gap-3 bg-zinc-50/50 p-3 rounded-xl border border-zinc-100">
-                      <DateRangePicker 
+                      <DateRangePicker
                         dateRange={dateRange}
                         onDateRangeChange={setDateRange}
                       />
