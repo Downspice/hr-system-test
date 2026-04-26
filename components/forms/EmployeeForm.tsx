@@ -8,10 +8,9 @@ import SelectWrapper from "@/components/form-wrappers/SelectWrapper";
 import SearchableSelectWrapper from "@/components/form-wrappers/SearchableSelectWrapper";
 import { Button } from "@/components/ui/button";
 import { useGetQuery, usePostMutation, usePutMutation } from "@/hooks/api-client";
-import { User, Role, Department, DepartmentRole } from "@/types/types";
+import { User, Department, DepartmentRole } from "@/types/types";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 const employeeSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -23,7 +22,7 @@ const employeeSchema = z.object({
   departmentId: z.string().optional(),
   departmentRoleId: z.string().optional(),
   salary: z.coerce.number().min(0, "Salary must be a positive number").optional(),
-}).refine((data) => {
+}).refine(() => {
   // Password is required for new employees, optional for updates
   return true; 
 }, {

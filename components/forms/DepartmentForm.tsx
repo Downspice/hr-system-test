@@ -9,7 +9,6 @@ import { usePostMutation, usePutMutation, useGetQuery } from "@/hooks/api-client
 import { Department, User } from "@/types/types";
 import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
-import SelectWrapper from "@/components/form-wrappers/SelectWrapper";
 import { useState } from "react";
 import { DeleteConfirmDialog } from "../DeleteConfirmDialog";
 import { useDeleteMutation } from "@/hooks/api-client";

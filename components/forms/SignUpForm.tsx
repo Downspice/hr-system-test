@@ -48,9 +48,10 @@ export default function SignUpForm() {
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      const { confirmPassword, ...submitData } = data;
+      const { ...submitData } = data;
+      delete (submitData as any).confirmPassword;
 
-      const response = await apiClient.post("/users", submitData);
+      await apiClient.post("/users", submitData);
 
       toast.success("Account created successfully! Please log in.");
 

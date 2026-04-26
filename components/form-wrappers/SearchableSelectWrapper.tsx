@@ -17,7 +17,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 
 export interface SelectOption {

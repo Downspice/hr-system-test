@@ -3,34 +3,23 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetQuery, useDeleteMutation, useDynamicPatchMutation } from "@/hooks/api-client";
-import { User, Leave } from "@/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User, Leave, Attendance } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppAvatar } from "@/components/AppAvatar";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Mail,
-  Briefcase,
-  Shield,
   Edit2,
   Trash2,
   User as UserIcon,
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle,
-  BadgeCent,
-  FileText,
-  Fingerprint,
   Ban,
   UserCheck,
   Calendar as CalendarIcon,
-  RotateCcw,
-  Search,
 } from "lucide-react";
-import { Attendance } from "@/types/types";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { EmployeeDialog } from "@/components/EmployeeDialog";
 import { AppTabs } from "@/components/AppTabs";
