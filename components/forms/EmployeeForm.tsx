@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import InputWrapper from "@/components/form-wrappers/InputWrapper";
 import SelectWrapper from "@/components/form-wrappers/SelectWrapper";
+import SearchableSelectWrapper from "@/components/form-wrappers/SearchableSelectWrapper";
 import { Button } from "@/components/ui/button";
 import { useGetQuery, usePostMutation, usePutMutation } from "@/hooks/api-client";
 import { User, Role, Department, DepartmentRole } from "@/types/types";
@@ -68,16 +69,16 @@ export default function EmployeeForm({ initialData, onSuccess }: EmployeeFormPro
     },
   });
 
-  const selectedDeptId = watch("departmentId");
+  const watchDepartmentId = watch("departmentId");
 
   // Fetch departments
-  const { data: deptResponse } = useGetQuery<Department>("departments", "/departments");
+  const { data: deptResponse } = useGetQuery<Department[]>("departments", "/departments");
   
   // Fetch department roles for the selected department
-  const { data: rolesResponse } = useGetQuery<DepartmentRole>(
-    ["department-roles", selectedDeptId],
-    `/departments/${selectedDeptId}/roles`,
-    { enabled: !!selectedDeptId }
+  const { data: rolesResponse } = useGetQuery<DepartmentRole[]>(
+    ["department-roles", watchDepartmentId],
+    `/departments/${watchDepartmentId}/roles`,
+    { enabled: !!watchDepartmentId }
   );
 
   const createMutation = usePostMutation<User, EmployeeFormValues>("/users");
@@ -151,18 +152,20 @@ export default function EmployeeForm({ initialData, onSuccess }: EmployeeFormPro
       />
 
       <div className="grid grid-cols-2 gap-4">
-        <SelectWrapper
+        <SearchableSelectWrapper
           control={control}
           name="departmentId"
           label="Department"
           options={departmentOptions}
+          searchPlaceholder="Search departments..."
         />
-        <SelectWrapper
+        <SearchableSelectWrapper
           control={control}
           name="departmentRoleId"
           label="Department Role"
           options={roleOptions}
-          disabled={!selectedDeptId}
+          disabled={!watchDepartmentId}
+          searchPlaceholder="Search roles..."
         />
       </div>
 
@@ -172,8 +175,8 @@ export default function EmployeeForm({ initialData, onSuccess }: EmployeeFormPro
           name="salary" 
           label="Salary" 
           type="number" 
-          placeholder={!selectedDeptId ? "Select a department first" : "0.00"}
-          disabled={!selectedDeptId}
+          placeholder={!watchDepartmentId ? "Select a department first" : "0.00"}
+          disabled={!watchDepartmentId}
         />
       </div>
 

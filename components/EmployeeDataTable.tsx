@@ -28,6 +28,7 @@ import {
   ChevronLeft,
   Ban,
   UserCheck,
+  Pencil,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { User, Department } from "@/types/types";
@@ -39,12 +40,13 @@ import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 interface EmployeeDataTableProps {
   data: User[];
   onView: (user: User) => void;
+  onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   onCreate?: () => void;
   onRefresh?: () => void;
 }
 
-export function EmployeeDataTable({ data, onView, onDelete, onCreate, onRefresh }: EmployeeDataTableProps) {
+export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, onRefresh }: EmployeeDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -196,6 +198,13 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate, onRefresh 
             <Eye className="h-4 w-4" />
           </button>
           <button
+            onClick={() => onEdit(row.original)}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-sm"
+            title="Edit employee"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
             onClick={() => {
               setUserToToggle(row.original);
               setIsStatusDialogOpen(true);
@@ -243,7 +252,7 @@ export function EmployeeDataTable({ data, onView, onDelete, onCreate, onRefresh 
 
   const totalCount = table.getFilteredRowModel().rows.length;
 
-  const { data: departmentsResponse } = useGetQuery<Department>("departments", "/departments");
+  const { data: departmentsResponse } = useGetQuery<Department[]>("departments", "/departments");
   const departments = departmentsResponse?.data || [];
 
   const departmentOptions = departments.map((dept) => ({

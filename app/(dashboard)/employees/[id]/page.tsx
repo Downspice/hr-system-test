@@ -72,13 +72,13 @@ export default function EmployeeProfilePage() {
     `/users/${id}`
   );
 
-  const { data: leavesResponse, isLoading: isLeavesLoading } = useGetQuery<Leave>(
-    ["employee-leaves", id],
+  const { data: leavesResponse, isLoading: isLeavesLoading } = useGetQuery<Leave[]>(
+    ["user-leaves", id],
     `/leaves/user/${id}`
   );
 
-  const { data: attendanceResponse, isLoading: isAttendanceLoading } = useGetQuery<Attendance>(
-    ["employee-attendance", id],
+  const { data: attendanceResponse, isLoading: isAttendanceLoading } = useGetQuery<Attendance[]>(
+    ["user-attendance", id],
     `/attendance/user/${id}`
   );
 
