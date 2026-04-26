@@ -17,7 +17,7 @@ export default function EmployeesPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
 
-  const { data: response, isLoading, isError, refetch } = useGetQuery<User>(
+  const { data: response, isLoading, isError, refetch } = useGetQuery<User[]>(
     "users",
     "/users"
   );
@@ -55,6 +55,10 @@ export default function EmployeesPage() {
           onView={(user) => {
             setSelectedUser(user);
             setIsViewOpen(true);
+          }}
+          onEdit={(user) => {
+            setSelectedUser(user);
+            setIsFormOpen(true);
           }}
           onDelete={(user) => {
             setSelectedUser(user);

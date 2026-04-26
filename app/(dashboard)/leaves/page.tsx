@@ -36,7 +36,7 @@ export default function LeavesPage() {
   // Endpoint depends on role
   const endpoint = isAdmin ? "/leaves" : "/leaves/my-history";
   
-  const { data: response, isLoading, isError, refetch } = useGetQuery<Leave>(
+  const { data: response, isLoading, isError, refetch } = useGetQuery<Leave[]>(
     ["leaves", role],
     endpoint
   );
