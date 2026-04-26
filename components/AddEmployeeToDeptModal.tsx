@@ -32,7 +32,7 @@ export function AddEmployeeToDeptModal({
   existingUserIds,
 }: AddEmployeeToDeptModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: response, isLoading } = useGetQuery<User>("users", "/users");
+  const { data: response, isLoading } = useGetQuery<User[]>("users", "/users");
   
   const users = response?.data || [];
   

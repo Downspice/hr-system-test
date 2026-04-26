@@ -52,9 +52,9 @@ export function LeaveDataTable({ data, role, onAction }: LeaveDataTableProps) {
   const columns: ColumnDef<Leave>[] = [
     ...(isAdmin ? [{
       id: "user",
-      accessorFn: (row) => `${row.user?.firstName} ${row.user?.lastName}`,
+      accessorFn: (row: any) => `${row.user?.firstName} ${row.user?.lastName}`,
       header: "Employee",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const user = row.original.user;
         return (
           <div className="flex flex-col">
@@ -119,7 +119,7 @@ export function LeaveDataTable({ data, role, onAction }: LeaveDataTableProps) {
     },
     ...(isAdmin ? [{
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const leave = row.original;
         if (leave.status !== "PENDING") return null;
 

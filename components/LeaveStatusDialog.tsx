@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import TextareaWrapper from "@/components/form-wrappers/TextareaWrapper";
-import { LeaveStatus } from "@/types/types";
+import { Leave, LeaveStatus } from "@/types/types";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import React, { useEffect } from "react";
 
