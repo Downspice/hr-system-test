@@ -30,13 +30,16 @@ const employeeSchema = z.object({
   message: "Password is required for new employees",
   path: ["password"],
 }).refine((data) => {
-  // Department is required for salary
+  // Department is required for salary, AND salary is required for department
   if (data.salary && data.salary > 0 && !data.departmentId) {
+    return false;
+  }
+  if (data.departmentId && (!data.salary || data.salary <= 0)) {
     return false;
   }
   return true;
 }, {
-  message: "A department must be assigned before setting a salary",
+  message: "A department and a positive salary must be provided together",
   path: ["salary"],
 });
 
