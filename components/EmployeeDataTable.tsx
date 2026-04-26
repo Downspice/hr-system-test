@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -52,8 +53,22 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = React.useState(false);
-  const [userToToggle, setUserToToggle] = React.useState<User | null>(null);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [userToToggle, setUserToToggle] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setCurrentUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse user from localStorage");
+      }
+    }
+  }, []);
+
+  const isAdminOrHR = currentUser?.role === "Admin" || currentUser?.role === "HR";
   const statusMutation = useDynamicPatchMutation();
 
   const handleToggleStatus = async () => {
@@ -196,31 +211,35 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
           >
             <Eye className="h-4 w-4" />
           </button>
-          <button
-            onClick={() => onEdit(row.original)}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-sm"
-            title="Edit employee"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => {
-              setUserToToggle(row.original);
-              setIsStatusDialogOpen(true);
-            }}
-            className={`inline-flex items-center justify-center h-8 w-8 rounded-lg transition-colors shadow-sm ${row.original.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
-            title={row.original.isActive ? 'Disable user' : 'Enable user'}
-            disabled={statusMutation.isPending}
-          >
-            {row.original.isActive ? <Ban className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-          </button>
-          <button
-            onClick={() => onDelete(row.original)}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
-            title="Delete employee"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+          {isAdminOrHR && (
+            <>
+              <button
+                onClick={() => onEdit(row.original)}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-sm"
+                title="Edit employee"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => {
+                  setUserToToggle(row.original);
+                  setIsStatusDialogOpen(true);
+                }}
+                className={`inline-flex items-center justify-center h-8 w-8 rounded-lg transition-colors shadow-sm ${row.original.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
+                title={row.original.isActive ? 'Disable user' : 'Enable user'}
+                disabled={statusMutation.isPending}
+              >
+                {row.original.isActive ? <Ban className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={() => onDelete(row.original)}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
+                title="Delete employee"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </>
+          )}
         </div>
       ),
     },

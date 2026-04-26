@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { apiClient } from "@/lib/axios"
 import {
   LayoutDashboard,
@@ -37,15 +38,8 @@ import {
   SidebarGroupContent,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { AppAvatar } from "@/components/AppAvatar";
 import { EmployeeQuickViewSheet } from "@/components/EmployeeQuickViewSheet"
 import { useGetQuery } from "@/hooks/api-client"
 import { User as UserType } from "@/types/types"
@@ -211,10 +205,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
-                  <a href={item.url}>
+                  <Link href={item.url}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -226,10 +220,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {secondary.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild size="sm">
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -246,10 +240,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={userData.avatar} alt={userData.name} />
-                    <AvatarFallback className="rounded-lg">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
+                  <AppAvatar 
+                    user={currentUser || { firstName: "Guest", lastName: "", username: "guest", isActive: true }} 
+                    className="h-8 w-8 rounded-lg"
+                    fallbackClassName="rounded-lg text-xs"
+                  />
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{userData.name}</span>
                     <span className="truncate text-xs">{userData.email}</span>
@@ -265,10 +260,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               >
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={userData.avatar} alt={userData.name} />
-                      <AvatarFallback className="rounded-lg">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    <AppAvatar 
+                      user={currentUser || { firstName: "Guest", lastName: "", username: "guest", isActive: true }} 
+                      className="h-8 w-8 rounded-lg"
+                      fallbackClassName="rounded-lg text-xs"
+                    />
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{userData.name}</span>
                       <span className="truncate text-xs">{userData.email}</span>

@@ -25,7 +25,7 @@ export default function AuthLayout({
               <polygon points="12 2 2 22 22 22"></polygon>
             </svg>
           </div>
-          <span className="text-lg font-bold tracking-tight text-zinc-800">CREXTIO</span>
+          <span className="text-lg font-bold tracking-tight text-zinc-800">AWER</span>
         </div>
 
         {/* Dynamic Form Content */}

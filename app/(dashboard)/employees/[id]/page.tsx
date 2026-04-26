@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetQuery, useDeleteMutation, useDynamicPatchMutation } from "@/hooks/api-client";
 import { User, Leave } from "@/types/types";
@@ -67,6 +67,20 @@ export default function EmployeeProfilePage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setCurrentUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse user from localStorage");
+      }
+    }
+  }, []);
+
+  const isAdminOrHR = currentUser?.role === "Admin" || currentUser?.role === "HR";
 
   const { data: userResponse, isLoading: isUserLoading, refetch } = useGetQuery<User>(
     ["employee", id],
@@ -158,7 +172,7 @@ export default function EmployeeProfilePage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push("/employees")}
+            onClick={() => router.back()}
             className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -175,33 +189,35 @@ export default function EmployeeProfilePage() {
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            className={`h-9 gap-1.5 font-semibold transition-all shadow-sm border-none ${employee.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
-            onClick={() => setIsStatusOpen(true)}
-            disabled={statusMutation.isPending}
-          >
-            {employee.isActive ? <Ban className="h-3.5 w-3.5" /> : <UserCheck className="h-3.5 w-3.5" />}
-            {employee.isActive ? 'Disable User' : 'Enable User'}
-          </Button>
-          <Button
-            size="sm"
-            className="h-9 gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-sm"
-            onClick={() => setIsEditOpen(true)}
-          >
-            <Edit2 className="h-3.5 w-3.5" />
-            Edit User
-          </Button>
-          <Button
-            size="sm"
-            className="h-9 gap-1.5 bg-red-500 hover:bg-red-600 text-white border-none shadow-sm"
-            onClick={() => setIsDeleteOpen(true)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete User
-          </Button>
-        </div>
+        {isAdminOrHR && (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              className={`h-9 gap-1.5 font-semibold transition-all shadow-sm border-none ${employee.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
+              onClick={() => setIsStatusOpen(true)}
+              disabled={statusMutation.isPending}
+            >
+              {employee.isActive ? <Ban className="h-3.5 w-3.5" /> : <UserCheck className="h-3.5 w-3.5" />}
+              {employee.isActive ? 'Disable User' : 'Enable User'}
+            </Button>
+            <Button
+              size="sm"
+              className="h-9 gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-sm"
+              onClick={() => setIsEditOpen(true)}
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+              Edit User
+            </Button>
+            <Button
+              size="sm"
+              className="h-9 gap-1.5 bg-red-500 hover:bg-red-600 text-white border-none shadow-sm"
+              onClick={() => setIsDeleteOpen(true)}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete User
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Main layout */}
