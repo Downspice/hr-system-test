@@ -38,24 +38,65 @@ export default function AuthLayout({
       <div className="hidden sm:flex sm:w-[50%] items-center justify-center p-4 lg:p-6">
         <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-zinc-100 shadow-2xl">
           <Image
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2940&auto=format&fit=crop"
-            alt="Team Collaboration"
+            src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2940&auto=format&fit=crop"
+            alt="Modern Corporate Office"
             fill
             className="object-cover"
             priority
           />
-          {/* Subtle Glassmorphism overlays to match the vibe */}
-          <div className="absolute top-12 left-12 rounded-2xl bg-yellow-400/95 p-4 shadow-lg backdrop-blur-sm">
-            <div className="text-sm font-semibold text-black/80">Task Review With Team</div>
-            <div className="text-xs text-black/60">09:30am - 10:00am</div>
+          <div className="absolute top-12 left-12 rounded-2xl bg-zinc-900/90 p-5 shadow-2xl backdrop-blur-md border border-white/10 animate-float">
+            <div className="text-sm font-bold text-white mb-1">HR Performance Analytics</div>
+            <div className="text-xs text-white/50">Real-time workforce monitoring</div>
           </div>
           
-          <div className="absolute bottom-16 left-12 w-64 rounded-2xl bg-white/80 p-5 shadow-2xl backdrop-blur-xl border border-white/20">
-            <div className="mb-2 text-sm font-semibold text-zinc-800">Daily Meeting</div>
-            <div className="text-xs text-zinc-500">12:00pm - 01:00pm</div>
+          <div className="absolute bottom-16 left-12 w-72 rounded-[2rem] bg-white/80 p-6 shadow-2xl backdrop-blur-xl border border-white/20 animate-float-slow">
+            <div className="mb-2 text-sm font-bold text-zinc-900">Employee Management</div>
+            <div className="text-xs text-zinc-500 font-medium">98.5% Organizational Efficiency</div>
             <div className="mt-4 flex -space-x-3">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-zinc-300 shadow-sm" />
+              ))}
+            </div>
+          </div>
+
+          <div className="absolute top-40 right-12 w-48 rounded-2xl bg-emerald-500/90 p-4 shadow-2xl backdrop-blur-md border border-white/10 animate-float-delayed">
+            <div className="text-xs font-bold text-white mb-1 uppercase tracking-wider">Attendance</div>
+            <div className="text-sm font-semibold text-white">96% Present Today</div>
+          </div>
+
+          <div className="absolute bottom-12 right-12 w-56 rounded-2xl bg-zinc-900/40 p-4 shadow-2xl backdrop-blur-xl border border-white/10 animate-float">
+            <div className="text-xs font-bold text-white mb-1">Leave Requests</div>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+              <div className="text-xs text-white/80">3 Pending Approvals</div>
+            </div>
+          </div>
+
+          {/* New 4 Cards */}
+          <div className="absolute top-1/2 left-8 -translate-y-1/2 w-44 rounded-2xl bg-blue-600/80 p-4 shadow-2xl backdrop-blur-lg border border-white/10 animate-float-slow">
+            <div className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-1 text-center">Payroll</div>
+            <div className="text-sm font-bold text-white text-center">GHS 45,200.00</div>
+            <div className="text-[10px] text-blue-200 text-center mt-1">Monthly Disbursement</div>
+          </div>
+
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-52 rounded-2xl bg-white/40 p-4 shadow-xl backdrop-blur-md border border-white/20 animate-float-delayed">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-emerald-400" />
+              <div className="text-xs font-bold text-zinc-800">124 Active Members</div>
+            </div>
+            <div className="text-[10px] text-zinc-500 mt-1">Full Employee Directory</div>
+          </div>
+
+          <div className="absolute bottom-40 right-24 w-40 rounded-2xl bg-zinc-800/80 p-4 shadow-2xl backdrop-blur-md border border-white/10 animate-float">
+            <div className="text-xs font-bold text-white mb-1">Departments</div>
+            <div className="text-[10px] text-white/60 leading-tight">8 Managed Groups</div>
+          </div>
+
+          <div className="absolute top-1/4 right-8 w-44 rounded-2xl bg-white/60 p-4 shadow-xl backdrop-blur-sm border border-white/30 animate-float-slow">
+            <div className="text-xs font-bold text-zinc-900 mb-1">Roles & Access</div>
+            <div className="flex gap-1">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-1.5 flex-1 rounded-full bg-zinc-300" />
               ))}
             </div>
           </div>
