@@ -13,6 +13,8 @@ import SelectWrapper from "@/components/form-wrappers/SelectWrapper";
 import { useState } from "react";
 import { DeleteConfirmDialog } from "../DeleteConfirmDialog";
 import { useDeleteMutation } from "@/hooks/api-client";
+import SearchableSelectWrapper from "@/components/form-wrappers/SearchableSelectWrapper";
+import { useQueryClient } from "@tanstack/react-query";
 
 const departmentSchema = z.object({
   name: z.string().min(2, "Department name must be at least 2 characters"),
@@ -27,6 +29,7 @@ interface DepartmentFormProps {
 }
 
 export default function DepartmentForm({ initialData, onSuccess }: DepartmentFormProps) {
+  const queryClient = useQueryClient();
   const {
     control,
     handleSubmit,
@@ -39,10 +42,14 @@ export default function DepartmentForm({ initialData, onSuccess }: DepartmentFor
     },
   });
 
-  const { data: usersResponse } = useGetQuery<User>("users", "/users");
+  const { data: usersResponse } = useGetQuery<User[]>("users", "/users");
   const users = usersResponse?.data || [];
   const userOptions = users
-    .filter(u => u.isActive || u.id === initialData?.manager?.id)
+    .filter(u => 
+      (u.isActive || u.id === initialData?.manager?.id) && 
+      u.role === 'Employee' && 
+      (!u.department || (initialData?.id && u.department.id === initialData.id))
+    )
     .map(u => ({
       label: `${u.firstName} ${u.lastName} (@${u.username})${!u.isActive ? ' (Inactive)' : ''}`,
       value: u.id
@@ -61,9 +68,13 @@ export default function DepartmentForm({ initialData, onSuccess }: DepartmentFor
     try {
       if (initialData) {
         await updateMutation.mutateAsync(data);
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ["departments"] });
         toast.success("Department updated successfully");
       } else {
         await createMutation.mutateAsync(data);
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ["departments"] });
         toast.success("Department created successfully");
       }
       onSuccess();
@@ -78,6 +89,8 @@ export default function DepartmentForm({ initialData, onSuccess }: DepartmentFor
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync(`/departments/${initialData.id}`);
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
       toast.success("Department deleted successfully");
       onSuccess();
     } catch (error: any) {
@@ -98,12 +111,13 @@ export default function DepartmentForm({ initialData, onSuccess }: DepartmentFor
         placeholder="e.g. Engineering"
         required
       />
-      <SelectWrapper
+      <SearchableSelectWrapper
         control={control}
         name="departmentManager"
         label="Department Manager"
         options={userOptions}
         placeholder="Select a manager"
+        searchPlaceholder="Search employees..."
         required
       />
       <div className="flex justify-between gap-2 pt-4">

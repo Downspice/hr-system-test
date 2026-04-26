@@ -67,14 +67,14 @@ export default function DepartmentDetailsPage() {
   );
 
   // Get department users
-  const { data: usersResponse, isLoading: isUsersLoading, refetch: refetchUsers } = useGetQuery<User>(
+  const { data: usersResponse, isLoading: isUsersLoading, refetch: refetchUsers } = useGetQuery<User[]>(
     ["department-users", departmentId],
     `/departments/${departmentId}/users`
   );
   console.log(usersResponse); 
 
   // Get department roles (for the assignment dropdown)
-  const { data: rolesResponse } = useGetQuery<DepartmentRole>(
+  const { data: rolesResponse } = useGetQuery<DepartmentRole[]>(
     ["department-roles", departmentId],
     `/departments/${departmentId}/roles`
   );
@@ -226,6 +226,7 @@ export default function DepartmentDetailsPage() {
 
       <DepartmentEmployeeTable
         data={users}
+        managerId={department?.departmentManager}
         onView={(user) => router.push(`/employees/${user.id}`)}
         onSetManager={(user) => handleAssignManager(user.id)}
         onAssignRole={handleAssignRoleStep1}

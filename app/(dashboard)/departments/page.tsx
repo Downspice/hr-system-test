@@ -13,7 +13,7 @@ export default function DepartmentsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState<Department | undefined>();
 
-  const { data: response, isLoading, isError, refetch } = useGetQuery<Department>(
+  const { data: response, isLoading, isError, refetch } = useGetQuery<Department[]>(
     "departments",
     "/departments"
   );

@@ -38,7 +38,7 @@ export function AssignDeptRoleModal({
 }: AssignDeptRoleModalProps) {
   const [selectedRoleId, setSelectedRoleId] = useState<string>("");
   
-  const { data: rolesResponse, isLoading } = useGetQuery<DepartmentRole>(
+  const { data: rolesResponse, isLoading } = useGetQuery<DepartmentRole[]>(
     ["department-roles", departmentId],
     `/departments/${departmentId}/roles`
   );

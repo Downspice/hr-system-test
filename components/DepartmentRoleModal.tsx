@@ -31,7 +31,7 @@ interface DepartmentRoleModalProps {
 }
 
 export function DepartmentRoleModal({ departmentId, isOpen, onClose }: DepartmentRoleModalProps) {
-  const { data: response, isLoading, refetch } = useGetQuery<DepartmentRole>(
+  const { data: response, isLoading, refetch } = useGetQuery<DepartmentRole[]>(
     ["department-roles", departmentId],
     `/departments/${departmentId}/roles`
   );

@@ -24,6 +24,7 @@ import {
   Crown,
   ShieldCheck,
   UserMinus,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ import { User } from "@/types/types";
 
 interface DepartmentEmployeeTableProps {
   data: User[];
+  managerId?: string;
   onView: (user: User) => void;
   onSetManager: (user: User) => void;
   onAssignRole: (user: User) => void;
@@ -47,6 +49,7 @@ interface DepartmentEmployeeTableProps {
 
 export function DepartmentEmployeeTable({ 
   data, 
+  managerId,
   onView, 
   onSetManager, 
   onAssignRole, 
@@ -72,7 +75,12 @@ export function DepartmentEmployeeTable({
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-medium text-sm">{fullName}</span>
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-sm">{fullName}</span>
+                {user.id === managerId && (
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                )}
+              </div>
               <span className="text-xs text-muted-foreground">{user.email}</span>
             </div>
           </div>
