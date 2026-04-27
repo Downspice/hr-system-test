@@ -7,7 +7,7 @@ export default function SignUpPage() {
       <div className="text-center mb-4">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-800">Create an account</h1>
         <p className="mt-2 text-sm text-zinc-500">
-          Sign up and get 30 day free trial
+          Sign up here to become and employee
         </p>
       </div>
 
