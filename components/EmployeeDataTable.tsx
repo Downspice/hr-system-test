@@ -206,7 +206,7 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => onView(row.original)}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center h-8 w-8 rounded-sm bg-white border-emerald-500 text-emerald-500 hover:bg-emerald-50 transition-colors shadow-sm"
             title="View profile"
           >
             <Eye className="h-4 w-4" />
@@ -215,7 +215,7 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
             <>
               <button
                 onClick={() => onEdit(row.original)}
-                className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors shadow-sm"
+                className="inline-flex items-center justify-center h-8 w-8 rounded-sm bg-white border-zinc-800 text-zinc-800 hover:bg-zinc-50 transition-colors shadow-sm"
                 title="Edit employee"
               >
                 <Pencil className="h-4 w-4" />
@@ -225,7 +225,7 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
                   setUserToToggle(row.original);
                   setIsStatusDialogOpen(true);
                 }}
-                className={`inline-flex items-center justify-center h-8 w-8 rounded-lg transition-colors shadow-sm ${row.original.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
+                className={`inline-flex items-center justify-center h-8 w-8 rounded-sm transition-colors shadow-sm bg-white ${row.original.isActive ? 'border-amber-500 text-amber-500 hover:bg-amber-50' : 'border-emerald-500 text-emerald-500 hover:bg-emerald-50'}`}
                 title={row.original.isActive ? 'Disable user' : 'Enable user'}
                 disabled={statusMutation.isPending}
               >
@@ -233,7 +233,7 @@ export function EmployeeDataTable({ data, onView, onEdit, onDelete, onCreate, on
               </button>
               <button
                 onClick={() => onDelete(row.original)}
-                className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
+                className="inline-flex items-center justify-center h-8 w-8 rounded-sm bg-white border-red-500 text-red-500 hover:bg-red-50 transition-colors shadow-sm"
                 title="Delete employee"
               >
                 <Trash2 className="h-4 w-4" />

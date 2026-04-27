@@ -189,7 +189,8 @@ export default function EmployeeProfilePage() {
           <div className="flex items-center gap-2">
             <Button
               size="sm"
-              className={`h-9 gap-1.5 font-semibold transition-all shadow-sm border-none ${employee.isActive ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}
+              variant="outline"
+              className={`h-9 gap-1.5 font-semibold transition-all shadow-sm bg-white ${employee.isActive ? 'border-amber-500 text-amber-500 hover:bg-amber-50 hover:text-amber-600' : 'border-emerald-500 text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600'}`}
               onClick={() => setIsStatusOpen(true)}
               disabled={statusMutation.isPending}
             >
@@ -198,7 +199,8 @@ export default function EmployeeProfilePage() {
             </Button>
             <Button
               size="sm"
-              className="h-9 gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-sm"
+              variant="outline"
+              className="h-9 gap-1.5 bg-white border-emerald-500 text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600 shadow-sm"
               onClick={() => setIsEditOpen(true)}
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -206,7 +208,8 @@ export default function EmployeeProfilePage() {
             </Button>
             <Button
               size="sm"
-              className="h-9 gap-1.5 bg-red-500 hover:bg-red-600 text-white border-none shadow-sm"
+              variant="outline"
+              className="h-9 gap-1.5 bg-white border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 shadow-sm"
               onClick={() => setIsDeleteOpen(true)}
             >
               <Trash2 className="h-3.5 w-3.5" />
