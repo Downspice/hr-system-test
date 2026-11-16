@@ -187,8 +187,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Users className="size-4" />
+              <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 p-1">
+                <img
+                  src="/icon-square.png"
+                  alt="Ventos"
+                  className="size-full object-contain"
+                />
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">HR System</span>

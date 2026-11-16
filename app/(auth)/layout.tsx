@@ -11,21 +11,16 @@ export default function AuthLayout({
       <div className="flex w-full flex-col justify-center px-8 sm:w-[50%] lg:px-16 xl:px-24">
         {/* Logo Area */}
         <div className="absolute top-8 left-8 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-800 text-white shadow-md">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <polygon points="12 2 2 22 22 22"></polygon>
-            </svg>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 p-1">
+            <img
+              src="/icon-square.png"
+              alt="Ventos"
+              className="h-full w-full object-contain"
+            />
           </div>
-          <span className="text-lg font-bold tracking-tight text-zinc-800">AWER</span>
+          <span className="text-lg font-bold tracking-tight text-zinc-800">
+            AWER<span className="text-[#F97316]">.</span>
+          </span>
         </div>
 
         {/* Dynamic Form Content */}
